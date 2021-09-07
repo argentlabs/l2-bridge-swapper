@@ -16,6 +16,8 @@
     "dotenv": "^9.0.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.3.1"
+    "@openzeppelin/contracts": "^4.3.1",
+    "lodash.merge": "^4.5.0",
+    "fs": "0.0.1-security"
   }
 }
