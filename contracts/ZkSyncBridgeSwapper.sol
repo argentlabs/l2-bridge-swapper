@@ -1,14 +1,19 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "./interfaces/IZkSync.sol";
 import "./interfaces/IWstETH.sol";
 import "./interfaces/ILido.sol";
 import "./interfaces/ICurvePool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ZkSyncBridgeSwapper {
+
+    using SafeMath for uint256;
+
+    // The owner of the contract
+    address public owner;
 
     // The ZkSync bridge contract
     address public immutable zkSync;
@@ -23,9 +28,13 @@ contract ZkSyncBridgeSwapper {
     // The referal address for Lido
     address public immutable lidoReferal;
 
+    // The max slippage accepted in Curve. Set to 1%.
+    uint256 public immutable SLIPPAGE_FACTOR = 99000000;
+
     address constant internal ETH_TOKEN = address(0);
 
     event Swapped(address _in, uint256 _amountIn, address _out, uint256 _amountOut);
+    event OwnerChanged(address _owner, address _newOwner);
 
     constructor (
         address _zkSync,
@@ -41,23 +50,25 @@ contract ZkSyncBridgeSwapper {
         stEth = IWstETH(_wStEth).stETH();
         stEthPool = _stEthPool;
         lidoReferal =_lidoReferal;
+        owner = msg.sender;
     }
     
     /**
-    * @dev Withdraws wrapped stETH from the ZkSync bridge, unwrap it to stETH,
-    * swap the stETH for ETH on Curve, and deposits the ETH back to the bridge.
-    * @param _amountIn The amount of wrapped stETH to withdraw from ZkSync
-    * @param _minAmountOut The minimum amount of ETH to receive and deposit back to ZkSync
+    * @dev Swaps wrapped stETH for ETH and deposits the resulting ETH to the ZkSync bridge.
+    * First withdraws wrapped stETH from the bridge if there is a pending balance.
+    * @param _amountIn The amount of wrapped stETH to swap.
     */
-    function swapStEthForEth(uint256 _amountIn, uint256 _minAmountOut) external returns (uint256) {
-        // withdraw wrapped stEth from the L2 bridge
-        IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), wStEth, toUint128(_amountIn));
+    function swapStEthForEth(uint256 _amountIn) external returns (uint256) {
+        // check if there is a pending balance to withdraw
+        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), wStEth);
+        if (pendingBalance > 0) {
+            // withdraw pending balance
+            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), wStEth, pendingBalance);
+        }
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
         // swap stEth for ETH on Curve
-        uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, _minAmountOut);
-        // redundant but this way we don't rely on Curve for the check
-        require (amountOut >= _minAmountOut, "out too small");
+        uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
         // deposit Eth to L2 bridge
         IZkSync(zkSync).depositETH{value: amountOut}(l2Account);
         // emit event
@@ -67,21 +78,23 @@ contract ZkSyncBridgeSwapper {
     }
 
     /**
-    * @dev Withdraws ETH from ZkSync bridge, swap it for stETH, wrap it, and deposit the wrapped stETH back to the bridge.
-    * @param _amountIn The amount of ETH to withdraw from ZkSync
-    * @param _minAmountOut The minimum amount of stETH to receive and deposit back to ZkSync
+    * @dev Swaps ETH for wrapped stETH and deposits the resulting wstETH to the ZkSync bridge.
+    * First withdraws ETH from the bridge if there is a pending balance.
+    * @param _amountIn The amount of ETH to swap.
     */
-    function swapEthForStEth(uint256 _amountIn, uint256 _minAmountOut) external returns (uint256) {
-        // withdraw Eth from the L2 bridge
-        IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), address(0), toUint128(_amountIn));
+    function swapEthForStEth(uint256 _amountIn) external returns (uint256) {
+        // check if there is a pending balance to withdraw
+        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), address(0));
+        if (pendingBalance > 0) {
+            // withdraw Eth from the L2 bridge
+            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), address(0), pendingBalance);
+        }
         // swap Eth for stEth on the Lido contract
         ILido(stEth).submit{value: _amountIn}(lidoReferal);
         // approve the wStEth contract to take the stEth
         IERC20(stEth).approve(wStEth, _amountIn);
         // wrap to wStEth
         uint256 amountOut = IWstETH(wStEth).wrap(_amountIn);
-        // not needed, but we still check that we have received enough Eth
-        require (amountOut >= _minAmountOut, "out too small");
         // approve the zkSync bridge to take the wrapped stEth
         IERC20(wStEth).approve(zkSync, amountOut);
         // deposit the wStEth to the L2 bridge
@@ -93,41 +106,40 @@ contract ZkSyncBridgeSwapper {
     }
 
     /**
-    * @dev Safety method to recover ERC20 tokens that are sent to the contract by error.
-    * The tokens are recovered by deposting them to the l2Account on zkSync.
-    * @param _token The token to recover. Must be a token supported by ZkSync.
+    * @dev Safety method to recover ETH or ERC20 tokens that are sent to the contract by error.
+    * @param _token The token to recover.
     */
-    function recoverToken(address _token) external returns (uint256) {
-        uint256 balance = IERC20(_token).balanceOf(address(this));
-        address token = _token;
-        if (token == stEth) {
-            // wrap to wStEth
-            IERC20(stEth).approve(wStEth, balance);
-            balance = IWstETH(wStEth).wrap(balance);
-            token = wStEth;
+    function recoverToken(address _token) external returns (uint256 balance) {
+        bool success;
+        if (_token == ETH_TOKEN) {
+            balance = address(this).balance;
+            (success, ) = owner.call{value: balance}("");
+        } else {
+            balance = IERC20(_token).balanceOf(address(this));
+            success = IERC20(_token).transfer(owner, balance);
         }
-        // approve the zkSync bridge to take the token
-        IERC20(token).approve(zkSync, balance);
-        // deposit the token to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(token), toUint104(balance), l2Account);
-        // return deposited amount
-        return balance;
+        require(success, "failed to recover");
+    }
+
+    function changeOwner(address _newOwner) external {
+        require(msg.sender == owner, "unauthorised");
+        require(_newOwner != address(0), "invalid input");
+        owner = _newOwner;
+        emit OwnerChanged(owner, _newOwner);
     }
 
     /**
-     * @dev fallback method to make sure we can receive ETH from ZkSync or Curve.
+     * @dev fallback method to make sure we can receive ETH
      */
     receive() external payable {
-        require(msg.sender == zkSync || msg.sender == stEthPool, "no ETH transfer");
+        
     }
 
     /**
-     * @dev Returns the downcasted uint128 from uint256, reverting on
-     * overflow (when the input is greater than largest uint128).
+     * @dev Returns the minimum accepted out amount.
      */
-    function toUint128(uint256 value) internal pure returns (uint128) {
-        require(value <= type(uint128).max, "SafeCast: value doesn't fit in 128 bits");
-        return uint128(value);
+    function getMinAmountOut(uint256 _amountIn) internal pure returns (uint256) {
+        return _amountIn.mul(SLIPPAGE_FACTOR).div(100000000);
     }
 
     /**

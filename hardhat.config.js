@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
 /**
@@ -14,7 +15,7 @@ require("dotenv").config();
     dev: {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
       accounts: [`0x${process.env.DEV_PKEY}`],
-      chainId: 3,
+      chainId: 4,
     },
   },
   solidity: {
