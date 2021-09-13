@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Bridge Swapper", function () {
+describe("Lido Bridge Swapper", function () {
 
   let lido;
   let zkSync;
@@ -18,7 +18,7 @@ describe("Bridge Swapper", function () {
     WstETH = await ethers.getContractFactory("WstETHMock");
     ZkSync = await ethers.getContractFactory("ZKSyncMock");
     Curve = await ethers.getContractFactory("CurvePoolMock");
-    Zap = await ethers.getContractFactory("ZkSyncBridgeSwapper");
+    Zap = await ethers.getContractFactory("LidoBridgeSwapper");
     lido = await Lido.deploy();
     wstETH = await WstETH.deploy(lido.address);
     zkSync = await ZkSync.deploy(wstETH.address);
@@ -69,7 +69,7 @@ describe("Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
     await zkSync.setPendingBalance(wstETH.address, 0);
-    await zap.swapStEthForEth(amountIn);
+    await zap.exchange(1, 0, amountIn);
     const ethDepositedAfter = await zkSync.getDepositedETH(l2Account.address);
     expect(ethDepositedAfter.sub(ethDepositedBefore)).to.equal(amountIn);
   });
@@ -78,7 +78,7 @@ describe("Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
     await zkSync.setPendingBalance(wstETH.address, ethers.utils.parseEther("0.1"));
-    await zap.swapStEthForEth(amountIn);
+    await zap.exchange(1, 0, amountIn);
     const ethDepositedAfter = await zkSync.getDepositedETH(l2Account.address);
     expect(ethDepositedAfter.sub(ethDepositedBefore)).to.equal(amountIn);
     expect(await zkSync.getPendingBalance(ethers.constants.AddressZero, wstETH.address)).to.equal(0);
@@ -87,14 +87,14 @@ describe("Bridge Swapper", function () {
   it("Should emit event when swapping wrapped stETH for ETH", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
-    await expect(zap.swapStEthForEth(amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
   });
 
   it("Should swap ETH for wrapped stETH when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(wstETH.address, l2Account.address);
     await zkSync.setPendingBalance(ethers.constants.AddressZero, 0);
-    await zap.swapEthForStEth(amountIn);
+    await zap.exchange(0, 1, amountIn);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(wstETH.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
   });
@@ -103,7 +103,7 @@ describe("Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(wstETH.address, l2Account.address);
     await zkSync.setPendingBalance(ethers.constants.AddressZero, ethers.utils.parseEther("0.1"));
-    await zap.swapEthForStEth(amountIn);
+    await zap.exchange(0, 1, amountIn);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(wstETH.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
     expect(await zkSync.getPendingBalance(ethers.constants.AddressZero, ethers.constants.AddressZero)).to.equal(0);
@@ -111,8 +111,7 @@ describe("Bridge Swapper", function () {
 
   it("Should emit event when swapping ETH for wrapped stETH", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
-    await expect(zap.swapStEthForEth(amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
   });
 
   it("Should recover ETH", async function () {
@@ -134,6 +133,11 @@ describe("Bridge Swapper", function () {
   it("Should change the owner", async function () {
     await zap.changeOwner(newOwner.address);
     expect(await zap.owner()).to.equal(newOwner.address);
+  });
+
+  it("Should change the slippage", async function () {
+    await zap.changeSlippage(2e6);
+    expect(await zap.slippagePercent()).to.equal(2e6);
   });
 
   it("Should fail to change the owner from a non owner account", async function () {
