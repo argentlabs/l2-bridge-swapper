@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.3;
 
 interface IBridgeSwapper {
     event Swapped(address _in, uint256 _amountIn, address _out, uint256 _amountOut);
