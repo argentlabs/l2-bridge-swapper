@@ -51,4 +51,10 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         emit Swapped(inputToken, _amountIn, outputToken, amountOut);
         return amountOut;
     }
+
+    function addVault(address _token, address _yvToken) external onlyOwner {
+        require(tokens.length % 2 == 0, "illegal state");
+        tokens.push(_token);
+        tokens.push(_yvToken);
+    }
 }
