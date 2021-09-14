@@ -28,20 +28,22 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
         owner = msg.sender;
     }
 
-    function changeOwner(address _newOwner) external {
+    modifier onlyOwner {
         require(msg.sender == owner, "unauthorised");
+        _;
+    }
+
+    function changeOwner(address _newOwner) external onlyOwner {
         require(_newOwner != address(0), "invalid input");
         owner = _newOwner;
         emit OwnerChanged(owner, _newOwner);
     }
 
-    function changeSlippage(uint256 _slippagePercent) external {
-        require(msg.sender == owner, "unauthorised");
-        require(_slippagePercent != slippagePercent, "identical input");
+    function changeSlippage(uint256 _slippagePercent) external onlyOwner {
+        require(_slippagePercent != slippagePercent && _slippagePercent <= 100e6, "invalid slippage");
         slippagePercent = _slippagePercent;
         emit SlippageChanged(slippagePercent);
     }
-
 
     /**
     * @dev Check if there is a pending balance to withdraw in zkSync and withdraw it if applicable.

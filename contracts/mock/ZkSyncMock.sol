@@ -39,8 +39,8 @@ contract ZKSyncMock is IZkSync {
         tokenBalances[_zkSyncAddress][address(_token)] += _amount;
     }
 
-    function setPendingBalance(address _token, uint128 _amount) external {
-        pendingBalances[msg.sender][_token] = _amount;
+    function setPendingBalance(address _address, address _token, uint128 _amount) external {
+        pendingBalances[_address][_token] = _amount;
     }
 
     function getPendingBalance(address _address, address _token) public override view returns (uint128) {

@@ -45,6 +45,8 @@ describe("Yearn Bridge Swapper", function () {
     await sendETH(zap.address, amount);
     await dai.transfer(zap.address, amount);
     await yvDai.transfer(zap.address, amount);
+    await dai.transfer(zkSync.address, amount);
+    await yvDai.transfer(zkSync.address, amount);
   });
 
   it("Should init the environment", async function () {
@@ -56,7 +58,7 @@ describe("Yearn Bridge Swapper", function () {
   it("Should swap yvDAI for DAI when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(dai.address, l2Account.address);
-    await zkSync.setPendingBalance(yvDai.address, 0);
+    await zkSync.setPendingBalance(zap.address, yvDai.address, 0);
     await zap.exchange(1, 0, amountIn);
     const depositedAfter = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
@@ -65,11 +67,12 @@ describe("Yearn Bridge Swapper", function () {
   it("Should swap wrapped yvDAI for DAI when there is a pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(dai.address, l2Account.address);
-    await zkSync.setPendingBalance(yvDai.address, ethers.utils.parseEther("0.1"));
+    await zkSync.setPendingBalance(zap.address, yvDai.address, ethers.utils.parseEther("0.1"));
     await zap.exchange(1, 0, amountIn);
     const depositedAfter = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
-    expect(await zkSync.getPendingBalance(ethers.constants.AddressZero, yvDai.address)).to.equal(0);
+    const balance = await zkSync.getPendingBalance(zap.address, yvDai.address);
+    expect(balance).to.equal(0);
   });
 
   it("Should emit event when swapping yvDAI for DAI", async function () {
@@ -80,7 +83,7 @@ describe("Yearn Bridge Swapper", function () {
   it("Should swap DAI for yvDAI when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
-    await zkSync.setPendingBalance(dai.address, 0);
+    await zkSync.setPendingBalance(zap.address, dai.address, 0);
     await zap.exchange(0, 1, amountIn);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
@@ -89,11 +92,11 @@ describe("Yearn Bridge Swapper", function () {
   it("Should swap DAI for yvDAI when there is a pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
-    await zkSync.setPendingBalance(dai.address, ethers.utils.parseEther("0.1"));
+    await zkSync.setPendingBalance(zap.address, dai.address, ethers.utils.parseEther("0.1"));
     await zap.exchange(0, 1, amountIn);
     const depositedAfter = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
-    expect(await zkSync.getPendingBalance(ethers.constants.AddressZero, dai.address)).to.equal(0);
+    expect(await zkSync.getPendingBalance(zap.address, dai.address)).to.equal(0);
   });
 
   it("Should emit event when swapping DAI for yvDAI", async function () {
