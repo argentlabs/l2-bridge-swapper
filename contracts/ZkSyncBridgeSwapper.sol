@@ -22,11 +22,7 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
     event OwnerChanged(address _owner, address _newOwner);
     event SlippageChanged(uint256 _slippagePercent);
 
-    constructor (
-        address _zkSync,
-        address _l2Account
-    )
-    {
+    constructor(address _zkSync, address _l2Account) {
         zkSync = _zkSync;
         l2Account = _l2Account;
         owner = msg.sender;
@@ -44,6 +40,18 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
         require(_slippagePercent != slippagePercent, "identical input");
         slippagePercent = _slippagePercent;
         emit SlippageChanged(slippagePercent);
+    }
+
+
+    /**
+    * @dev Check if there is a pending balance to withdraw in zkSync and withdraw it if applicable.
+    * @param _token The token to withdaw.
+    */
+    function transferZKSyncBalance(address _token) internal {
+        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), _token);
+        if (pendingBalance > 0) {
+            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), _token, pendingBalance);
+        }
     }
 
     /**

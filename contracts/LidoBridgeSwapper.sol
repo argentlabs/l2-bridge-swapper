@@ -1,15 +1,15 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.3;
 
+import "./ZkSyncBridgeSwapper.sol";
 import "./interfaces/IZkSync.sol";
 import "./interfaces/IWstETH.sol";
 import "./interfaces/ILido.sol";
 import "./interfaces/ICurvePool.sol";
-import "./ZkSyncBridgeSwapper.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
-* exchanges between ETH and stETH
+* Exchanges between ETH and stETH
 * index 0 = ETH
 * index 1 = stETH
 */
@@ -21,7 +21,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     address public immutable wStEth;
     // The address of the stEth/Eth Curve pool
     address public immutable stEthPool;
-    // The referal address for Lido
+    // The referral address for Lido
     address public immutable lidoReferral;
 
     constructor (
@@ -30,15 +30,14 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         address _wStEth,
         address _stEthPool,
         address _lidoReferral
-    ) ZkSyncBridgeSwapper(_zkSync, _l2Account)
-    {
+    ) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
         wStEth = _wStEth;
         stEth = IWstETH(_wStEth).stETH();
         stEthPool = _stEthPool;
         lidoReferral =_lidoReferral;
     }
 
-    function exchange(int128 _indexIn, int128 _indexOut, uint256 _amountIn) external override returns (uint256) {
+    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256) {
         if (_indexIn == 0) {
             require(_indexOut == 1, "Invalid bought coin");
             return swapEthForStEth(_amountIn);
@@ -56,12 +55,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of ETH to swap.
     */
     function swapEthForStEth(uint256 _amountIn) internal returns (uint256) {
-        // check if there is a pending balance to withdraw
-        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), address(0));
-        if (pendingBalance > 0) {
-            // withdraw Eth from the L2 bridge
-            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), address(0), pendingBalance);
-        }
+        transferZKSyncBalance(ETH_TOKEN);
         // swap Eth for stEth on the Lido contract
         ILido(stEth).submit{value: _amountIn}(lidoReferral);
         // approve the wStEth contract to take the stEth
@@ -84,12 +78,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of wrapped stETH to swap.
     */
     function swapStEthForEth(uint256 _amountIn) internal returns (uint256) {
-        // check if there is a pending balance to withdraw
-        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), wStEth);
-        if (pendingBalance > 0) {
-            // withdraw pending balance
-            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), wStEth, pendingBalance);
-        }
+        transferZKSyncBalance(wStEth);
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
         // swap stEth for ETH on Curve

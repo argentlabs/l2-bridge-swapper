@@ -3,26 +3,27 @@ const { ethers } = require("hardhat");
 
 describe("Lido Bridge Swapper", function () {
 
-  let lido;
-  let zkSync;
-  let curve;
-  let wstETH;
   let zap;
+  let zkSync;
   let l2Account;
   let deployer;
   let newOwner;
 
+  let lido;
+  let curve;
+  let wstETH;
+
   before(async function() {
     [deployer, l2Account, newOwner] = await ethers.getSigners();
+    Zap = await ethers.getContractFactory("LidoBridgeSwapper");
+    ZkSync = await ethers.getContractFactory("ZKSyncMock");
     Lido = await ethers.getContractFactory("LidoMock");
     WstETH = await ethers.getContractFactory("WstETHMock");
-    ZkSync = await ethers.getContractFactory("ZKSyncMock");
     Curve = await ethers.getContractFactory("CurvePoolMock");
-    Zap = await ethers.getContractFactory("LidoBridgeSwapper");
     lido = await Lido.deploy();
     wstETH = await WstETH.deploy(lido.address);
-    zkSync = await ZkSync.deploy(wstETH.address);
     curve = await Curve.deploy(lido.address);
+    zkSync = await ZkSync.deploy();
   })
 
   async function sendETH(recipient, amount) {
@@ -114,37 +115,43 @@ describe("Lido Bridge Swapper", function () {
     await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
   });
 
-  it("Should recover ETH", async function () {
-    const ownerBalance = await ethers.provider.getBalance(deployer.address);
-    await zap.recoverToken(ethers.constants.AddressZero);
-    const ownerBalanceAfter = await ethers.provider.getBalance(deployer.address);
-    expect(await ethers.provider.getBalance(zap.address)).to.equal(0);
-    expect(ownerBalanceAfter).to.be.gt(ownerBalance);
-  });
+  describe("Common methods", async function () {
+    it("Should recover ETH", async function () {
+      const ownerBalance = await ethers.provider.getBalance(deployer.address);
+      await zap.recoverToken(ethers.constants.AddressZero);
+      const ownerBalanceAfter = await ethers.provider.getBalance(deployer.address);
+      expect(await ethers.provider.getBalance(zap.address)).to.equal(0);
+      expect(ownerBalanceAfter).to.be.gt(ownerBalance);
+    });
 
-  it("Should recover ERC20", async function () {
-    const ownerBalance = await wstETH.balanceOf(deployer.address);
-    await zap.recoverToken(wstETH.address);
-    const ownerBalanceAfter = await wstETH.balanceOf(deployer.address);
-    expect(await wstETH.balanceOf(zap.address)).to.equal(0);
-    expect(ownerBalanceAfter).to.be.gt(ownerBalance);
-  });
+    it("Should recover ERC20", async function () {
+      const ownerBalance = await wstETH.balanceOf(deployer.address);
+      await zap.recoverToken(wstETH.address);
+      const ownerBalanceAfter = await wstETH.balanceOf(deployer.address);
+      expect(await wstETH.balanceOf(zap.address)).to.equal(0);
+      expect(ownerBalanceAfter).to.be.gt(ownerBalance);
+    });
 
-  it("Should change the owner", async function () {
-    await zap.changeOwner(newOwner.address);
-    expect(await zap.owner()).to.equal(newOwner.address);
-  });
+    it("Should change the owner", async function () {
+      await zap.changeOwner(newOwner.address);
+      expect(await zap.owner()).to.equal(newOwner.address);
+    });
 
-  it("Should change the slippage", async function () {
-    await zap.changeSlippage(2e6);
-    expect(await zap.slippagePercent()).to.equal(2e6);
-  });
+    it("Should fail to change the owner from a non owner account", async function () {
+      await expect(zap.connect(newOwner).changeOwner(newOwner.address)).to.revertedWith("unauthorised");
+    });
 
-  it("Should fail to change the owner from a non owner account", async function () {
-    await expect(zap.connect(newOwner).changeOwner(newOwner.address)).to.revertedWith("unauthorised");
-  });
+    it("Should fail to change the owner to 0 address", async function () {
+      await expect(zap.changeOwner(ethers.constants.AddressZero)).to.revertedWith("invalid input");
+    });
 
-  it("Should fail to change the owner to 0 address", async function () {
-    await expect(zap.changeOwner(ethers.constants.AddressZero)).to.revertedWith("invalid input");
+    it("Should change the slippage", async function () {
+      await zap.changeSlippage(2e6);
+      expect(await zap.slippagePercent()).to.equal(2e6);
+    });
+
+    it("Should fail to change the slippage to identical value", async function () {
+      await expect(zap.changeSlippage(1e6)).to.revertedWith("identical");
+    });
   });
 });

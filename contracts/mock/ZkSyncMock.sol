@@ -6,18 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract ZKSyncMock is IZkSync {
 
-    // the L1 address of a token available on L2
-    address l2Token;
     // ETH deposited
     mapping (address => uint256) ethBalances;
-    // token deposited
-    mapping (address => uint256) tokenBalances;
-    // pending balances
-    mapping (address => uint128) pendingBalances;
-
-    constructor(address _token) {
-        l2Token = _token;
-    }
+    // token deposited (owner => token => balance)
+    mapping (address => mapping (address => uint256)) tokenBalances;
+    // pending balances (owner => token => balance)
+    mapping (address => mapping (address => uint128)) pendingBalances;
 
     receive() external payable {}
 
@@ -25,14 +19,13 @@ contract ZKSyncMock is IZkSync {
         if (_token == address(0)) {
             uint256 balance = address(this).balance;
             require(_amount <= balance, "not enough ETH to withdraw");
-            pendingBalances[_token] = 0;
+            pendingBalances[_owner][_token] = 0;
             (bool success, ) = _owner.call{value: _amount}("");
             require(success, "withdraw failed");
         } else {
-            require (_token == l2Token, "wrong token");
-            uint256 balance = IERC20(l2Token).balanceOf(address(this));
+            uint256 balance = IERC20(_token).balanceOf(address(this));
             require(_amount <= balance, "not enough token to withdraw");
-            pendingBalances[_token] = 0;
+            pendingBalances[_owner][_token] = 0;
             IERC20(_token).transfer(_owner, _amount);
         }
     }
@@ -42,17 +35,16 @@ contract ZKSyncMock is IZkSync {
     }
 
     function depositERC20(IERC20 _token, uint104 _amount, address _zkSyncAddress) external override {
-        require (address(_token) == l2Token, "wrong token");
         _token.transferFrom(msg.sender, address(this), _amount);
-        tokenBalances[_zkSyncAddress] += _amount;
+        tokenBalances[_zkSyncAddress][address(_token)] += _amount;
     }
 
     function setPendingBalance(address _token, uint128 _amount) external {
-        pendingBalances[_token] = _amount;
+        pendingBalances[msg.sender][_token] = _amount;
     }
 
-    function getPendingBalance(address /*_address*/, address _token) public override view returns (uint128) {
-        return pendingBalances[_token];
+    function getPendingBalance(address _address, address _token) public override view returns (uint128) {
+        return pendingBalances[_address][_token];
     }
 
     function getDepositedETH(address _zkSyncAddress) external view returns(uint256) {
@@ -60,7 +52,6 @@ contract ZKSyncMock is IZkSync {
     }
 
     function getDepositedERC20(IERC20 _token, address _zkSyncAddress) external view returns(uint256) {
-        require (address(_token) == l2Token, "wrong token");
-        return tokenBalances[_zkSyncAddress];
+        return tokenBalances[_zkSyncAddress][address(_token)];
     }
 }

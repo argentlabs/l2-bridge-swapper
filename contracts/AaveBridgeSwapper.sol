@@ -5,13 +5,12 @@ import "./ZkSyncBridgeSwapper.sol";
 
 contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
 
-    constructor (address _zkSync, address _l2Account) ZkSyncBridgeSwapper(_zkSync, _l2Account)
-    {
+    constructor (address _zkSync, address _l2Account) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
 
     }
 
     // exchanges between ETH and stETH
-    function exchange(int128 _indexIn, int128 _indexOut, uint256 _amountIn) external override returns (uint256) {
+    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256) {
         revert("Not implemented");
     }
 }

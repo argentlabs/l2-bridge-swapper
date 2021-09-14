@@ -12,5 +12,5 @@ interface IBridgeSwapper {
     * @param _amountIn Amount of `_indexIn` being exchanged
     * @return Actual amount of `_indexOut` received
     */
-    function exchange(int128 _indexIn, int128 _indexOut, uint256 _amountIn) external returns (uint256);
+    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external returns (uint256);
 }
