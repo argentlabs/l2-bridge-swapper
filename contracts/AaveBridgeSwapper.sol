@@ -5,7 +5,7 @@ import "./ZkSyncBridgeSwapper.sol";
 
 contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
 
-    constructor (address _zkSync, address _l2Account) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+    constructor(address _zkSync, address _l2Account) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
 
     }
 

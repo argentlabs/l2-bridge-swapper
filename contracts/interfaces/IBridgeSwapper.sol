@@ -5,10 +5,10 @@ interface IBridgeSwapper {
     event Swapped(address _in, uint256 _amountIn, address _out, uint256 _amountOut);
 
     /**
-    * @notice Perform an exchange between two coins
-    * @dev Index values can be found via the `coins` public getter method
-    * @param _indexIn Index value for the coin to send
-    * @param _indexOut Index valie of the coin to receive
+    * @notice Perform an exchange between two tokens
+    * @dev Index values can usually be found via the constructor arguments (if not hardcoded)
+    * @param _indexIn Index value for the token to send
+    * @param _indexOut Index valie of the token to receive
     * @param _amountIn Amount of `_indexIn` being exchanged
     * @return Actual amount of `_indexOut` received
     */

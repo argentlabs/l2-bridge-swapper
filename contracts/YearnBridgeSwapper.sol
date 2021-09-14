@@ -5,20 +5,20 @@ import "./ZkSyncBridgeSwapper.sol";
 import "./interfaces/IYearnVault.sol";
 
 /**
-* Exchanges tokens for their respective yearn vault tokens.
+* @notice Exchanges tokens for their respective yearn vault tokens.
 * NOTE: to add a new vault, put the underlying token at the even index,
 * immediately followed by the vault token at the odd index.
-* For example:
-* index 0 = DAI
-* index 1 = yvDAI
-* index 2 = USDC
-* index 3 = yvUSDC
+* Example indexes:
+* 0: DAI
+* 1: yvDAI
+* 2: USDC
+* 3: yvUSDC
 */
 contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
 
     address[] public tokens;
 
-    constructor (address _zkSync, address _l2Account, address[] memory _tokens) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+    constructor(address _zkSync, address _l2Account, address[] memory _tokens) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
         tokens = _tokens;
     }
 

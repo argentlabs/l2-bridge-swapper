@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
 * Exchanges between ETH and stETH
-* index 0 = ETH
-* index 1 = stETH
+* index 0: ETH
+* index 1: stETH
 */
 contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
 
@@ -24,7 +24,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     // The referral address for Lido
     address public immutable lidoReferral;
 
-    constructor (
+    constructor(
         address _zkSync,
         address _l2Account,
         address _wStEth,
