@@ -56,7 +56,10 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
 
     function addVault(address _yvToken) public onlyOwner {
         require(_yvToken != address(0), "null yvToken");
-        tokens.push(IYearnVault(_yvToken).token());
+        address token = IYearnVault(_yvToken).token();
+        require(token != address(0), "null token");
+
+        tokens.push(token);
         tokens.push(_yvToken);
         assert(tokens.length % 2 == 0);
 
