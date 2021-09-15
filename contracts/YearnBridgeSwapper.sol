@@ -22,7 +22,7 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
 
     constructor(address _zkSync, address _l2Account, address[] memory _yvTokens) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
         for (uint i = 0; i < _yvTokens.length; i++) {
-            _addVault(_yvTokens[i]);
+            addVault(_yvTokens[i]);
         }
     }
 
@@ -54,16 +54,12 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         emit Swapped(inputToken, _amountIn, outputToken, amountOut);
     }
 
-    function _addVault(address _yvToken) public {
+    function addVault(address _yvToken) public onlyOwner {
         require(_yvToken != address(0), "null yvToken");
         tokens.push(IYearnVault(_yvToken).token());
         tokens.push(_yvToken);
         assert(tokens.length % 2 == 0);
 
         emit VaultAdded(_yvToken);
-    }
-
-    function addVault(address _yvToken) external onlyOwner {
-        _addVault(_yvToken);
     }
 }
