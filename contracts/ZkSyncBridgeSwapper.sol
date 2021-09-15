@@ -1,108 +1,59 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.3;
 
 import "./interfaces/IZkSync.sol";
-import "./interfaces/IWstETH.sol";
-import "./interfaces/ILido.sol";
-import "./interfaces/ICurvePool.sol";
+import "./interfaces/IBridgeSwapper.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract ZkSyncBridgeSwapper {
-
-    using SafeMath for uint256;
+abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
 
     // The owner of the contract
     address public owner;
+    // The max slippage accepted for swapping. Defaults to 1% with 6 decimals.
+    uint256 public slippagePercent = 1e6;
 
     // The ZkSync bridge contract
     address public immutable zkSync;
     // The L2 market maker account
     address public immutable l2Account;
-    // The address of the stEth token
-    address public immutable stEth;
-    // The address of the wrapped stEth token
-    address public immutable wStEth;
-    // The address of the stEth/Eth Curve pool
-    address public immutable stEthPool;
-    // The referal address for Lido
-    address public immutable lidoReferal;
-
-    // The max slippage accepted in Curve. Set to 1%.
-    uint256 public immutable SLIPPAGE_FACTOR = 99000000;
 
     address constant internal ETH_TOKEN = address(0);
 
-    event Swapped(address _in, uint256 _amountIn, address _out, uint256 _amountOut);
     event OwnerChanged(address _owner, address _newOwner);
+    event SlippageChanged(uint256 _slippagePercent);
 
-    constructor (
-        address _zkSync,
-        address _l2Account,
-        address _wStEth,
-        address _stEthPool,
-        address _lidoReferal
-    )
-    {
+    modifier onlyOwner {
+        require(msg.sender == owner, "unauthorised");
+        _;
+    }
+
+    constructor(address _zkSync, address _l2Account) {
         zkSync = _zkSync;
         l2Account = _l2Account;
-        wStEth = _wStEth;
-        stEth = IWstETH(_wStEth).stETH();
-        stEthPool = _stEthPool;
-        lidoReferal =_lidoReferal;
         owner = msg.sender;
     }
-    
-    /**
-    * @dev Swaps wrapped stETH for ETH and deposits the resulting ETH to the ZkSync bridge.
-    * First withdraws wrapped stETH from the bridge if there is a pending balance.
-    * @param _amountIn The amount of wrapped stETH to swap.
-    */
-    function swapStEthForEth(uint256 _amountIn) external returns (uint256) {
-        // check if there is a pending balance to withdraw
-        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), wStEth);
-        if (pendingBalance > 0) {
-            // withdraw pending balance
-            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), wStEth, pendingBalance);
-        }
-        // unwrap to stEth
-        uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
-        // swap stEth for ETH on Curve
-        uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
-        // deposit Eth to L2 bridge
-        IZkSync(zkSync).depositETH{value: amountOut}(l2Account);
-        // emit event
-        emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
-        // return deposited amount
-        return amountOut;
+
+    function changeOwner(address _newOwner) external onlyOwner {
+        require(_newOwner != address(0), "invalid input");
+        owner = _newOwner;
+        emit OwnerChanged(owner, _newOwner);
+    }
+
+    function changeSlippage(uint256 _slippagePercent) external onlyOwner {
+        require(_slippagePercent != slippagePercent && _slippagePercent <= 100e6, "invalid slippage");
+        slippagePercent = _slippagePercent;
+        emit SlippageChanged(slippagePercent);
     }
 
     /**
-    * @dev Swaps ETH for wrapped stETH and deposits the resulting wstETH to the ZkSync bridge.
-    * First withdraws ETH from the bridge if there is a pending balance.
-    * @param _amountIn The amount of ETH to swap.
+    * @dev Check if there is a pending balance to withdraw in zkSync and withdraw it if applicable.
+    * @param _token The token to withdaw.
     */
-    function swapEthForStEth(uint256 _amountIn) external returns (uint256) {
-        // check if there is a pending balance to withdraw
-        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), address(0));
+    function transferZKSyncBalance(address _token) internal {
+        uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), _token);
         if (pendingBalance > 0) {
-            // withdraw Eth from the L2 bridge
-            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), address(0), pendingBalance);
+            IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), _token, pendingBalance);
         }
-        // swap Eth for stEth on the Lido contract
-        ILido(stEth).submit{value: _amountIn}(lidoReferal);
-        // approve the wStEth contract to take the stEth
-        IERC20(stEth).approve(wStEth, _amountIn);
-        // wrap to wStEth
-        uint256 amountOut = IWstETH(wStEth).wrap(_amountIn);
-        // approve the zkSync bridge to take the wrapped stEth
-        IERC20(wStEth).approve(zkSync, amountOut);
-        // deposit the wStEth to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(wStEth), toUint104(amountOut), l2Account);
-        // emit event
-        emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
-        // return deposited amount
-        return amountOut;
     }
 
     /**
@@ -121,13 +72,6 @@ contract ZkSyncBridgeSwapper {
         require(success, "failed to recover");
     }
 
-    function changeOwner(address _newOwner) external {
-        require(msg.sender == owner, "unauthorised");
-        require(_newOwner != address(0), "invalid input");
-        owner = _newOwner;
-        emit OwnerChanged(owner, _newOwner);
-    }
-
     /**
      * @dev fallback method to make sure we can receive ETH
      */
@@ -138,8 +82,8 @@ contract ZkSyncBridgeSwapper {
     /**
      * @dev Returns the minimum accepted out amount.
      */
-    function getMinAmountOut(uint256 _amountIn) internal pure returns (uint256) {
-        return _amountIn.mul(SLIPPAGE_FACTOR).div(100000000);
+    function getMinAmountOut(uint256 _amountIn) internal view returns (uint256) {
+        return _amountIn * (100e6 - slippagePercent) / 100e6;
     }
 
     /**
