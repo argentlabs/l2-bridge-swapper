@@ -1,27 +1,51 @@
-const { getAccountPath } = require("ethers/lib/utils");
 const hre = require("hardhat");
 
 const ConfigLoader = require("./utils/configurator-loader.js");
 
 async function main() {
 
+  let args, Swapper, swapper;
   const configLoader = new ConfigLoader(hre.network.name);
-  const config = await configLoader.load();
+  const config = configLoader.load();
 
-  const Swapper = await ethers.getContractFactory("ZkSyncBridgeSwapper");
-  const swapper = await Swapper.deploy(
+  args = [
     config.zkSync,
     config.argent["l2-account"],
     config.wstETH,
     config["curve-steTH-pool"],
     config.argent["lido-referral"]
-  );
+  ];
+  Swapper = await ethers.getContractFactory("LidoBridgeSwapper");
+  swapper = await Swapper.deploy(...args);
+  console.log("Lido swapper deployed to:", swapper.address);
   await swapper.deployed();
-  config.argent.swapper = swapper.address;
-  console.log("Swapper deployed to:", swapper.address);
 
-  // update config
-  await configLoader.save(config);
+  config.argent["lido-swapper"] = swapper.address;
+  configLoader.save(config);
+  if (hre.network.name !== "hardhat") {
+    require("@nomiclabs/hardhat-etherscan");
+    console.log("Uploading code to Etherscan...");
+    await swapper.deployTransaction.wait(5);
+    await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
+  }
+
+  args = [
+    config.zkSync,
+    config.argent["l2-account"],
+    [],
+  ];
+  Swapper = await ethers.getContractFactory("YearnBridgeSwapper");
+  swapper = await Swapper.deploy(...args, { gasLimit: 2_000_000 });
+  console.log("Yearn swapper deployed to:", swapper.address);
+  await swapper.deployed();
+
+  config.argent["yearn-swapper"] = swapper.address;
+  configLoader.save(config);
+  if (hre.network.name !== "hardhat") {
+    console.log("Uploading code to Etherscan...");
+    await swapper.deployTransaction.wait(10);
+    await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
+  }
 }
 
 main()
