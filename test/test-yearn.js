@@ -37,9 +37,7 @@ describe("Yearn Bridge Swapper", function () {
 
   beforeEach(async function() {
     zap = await Zap.deploy(zkSync.address, l2Account.address, [
-      dai.address,
       yvDai.address,
-      usdc.address,
       yvUsdc.address,
     ]);
     await sendETH(zap.address, amount);
@@ -104,21 +102,32 @@ describe("Yearn Bridge Swapper", function () {
     await expect(zap.exchange(0, 1, amountIn)).to.emit(zap, "Swapped");
   });
 
+  it("Should add a new vault with its underlying token", async function () {
+    await expect(zap.tokens(4)).to.be.reverted;
+    await expect(zap.addVault(yvUsdc.address)).to.emit(zap, "VaultAdded");
+    expect(await zap.tokens(4)).to.equal(usdc.address);
+    expect(await zap.tokens(5)).to.equal(yvUsdc.address);
+  });
+
+  it("Should fail to add a new vault with a zero address", async function () {
+    await expect(zap.addVault(ethers.constants.AddressZero)).to.be.revertedWith("null yvToken");
+  });
+
   it("Should fail to swap 2 underlyings", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 2, amountIn)).to.revertedWith("invalid output token");
-    await expect(zap.exchange(2, 0, amountIn)).to.revertedWith("invalid output token");
+    await expect(zap.exchange(0, 2, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(2, 0, amountIn)).to.be.revertedWith("invalid output token");
   });
 
   it("Should fail to swap 2 vault tokens", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(1, 3, amountIn)).to.revertedWith("invalid output token");
-    await expect(zap.exchange(3, 1, amountIn)).to.revertedWith("invalid output token");
+    await expect(zap.exchange(1, 3, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(3, 1, amountIn)).to.be.revertedWith("invalid output token");
   });
 
   it("Should fail to swap an underlying with the wrong vault token", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 3, amountIn)).to.revertedWith("invalid output token");
-    await expect(zap.exchange(3, 0, amountIn)).to.revertedWith("invalid output token");
+    await expect(zap.exchange(0, 3, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(3, 0, amountIn)).to.be.revertedWith("invalid output token");
   });
 });

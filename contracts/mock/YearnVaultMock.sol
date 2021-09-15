@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetFixedSupply.sol";
 
 contract YearnVaultMock is IYearnVault, ERC20 {
 
-    address public token;
+    address public override token;
 
     constructor(address _token) ERC20("Yearn Vault Token", "yvXXX") {
         token = _token;

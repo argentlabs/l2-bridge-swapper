@@ -37,7 +37,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         lidoReferral =_lidoReferral;
     }
 
-    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256) {
+    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
         if (_indexIn == 0) {
             require(_indexOut == 1, "Invalid bought coin");
             return swapEthForStEth(_amountIn);

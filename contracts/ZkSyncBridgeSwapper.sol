@@ -22,15 +22,15 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
     event OwnerChanged(address _owner, address _newOwner);
     event SlippageChanged(uint256 _slippagePercent);
 
+    modifier onlyOwner {
+        require(msg.sender == owner, "unauthorised");
+        _;
+    }
+
     constructor(address _zkSync, address _l2Account) {
         zkSync = _zkSync;
         l2Account = _l2Account;
         owner = msg.sender;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner, "unauthorised");
-        _;
     }
 
     function changeOwner(address _newOwner) external onlyOwner {

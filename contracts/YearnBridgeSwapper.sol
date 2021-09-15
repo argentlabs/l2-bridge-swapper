@@ -18,13 +18,17 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
 
     address[] public tokens;
 
-    constructor(address _zkSync, address _l2Account, address[] memory _tokens) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
-        tokens = _tokens;
+    event VaultAdded(address yvToken);
+
+    constructor(address _zkSync, address _l2Account, address[] memory _yvTokens) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+        for (uint i = 0; i < _yvTokens.length; i += 1) {
+            _addVault(_yvTokens[i]);
+        }
     }
 
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
         require(_indexIn < tokens.length, "invalid input index");
-        require(_indexOut < tokens.length, "invalid output index");
+        require(_indexOut < tokens.length && _indexOut != _indexIn, "invalid output index");
 
         address inputToken = tokens[_indexIn];
         address outputToken = tokens[_indexOut];
@@ -32,11 +36,10 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         transferZKSyncBalance(inputToken);
 
         if (_indexIn % 2 == 0) { // deposit
-            address yvToken = tokens[_indexIn + 1];
-            require(outputToken == yvToken, "invalid output token");
+            require(outputToken == tokens[_indexIn + 1], "invalid output token");
 
-            IERC20(inputToken).approve(yvToken, _amountIn);
-            amountOut = IYearnVault(yvToken).deposit(_amountIn);
+            IERC20(inputToken).approve(outputToken, _amountIn);
+            amountOut = IYearnVault(outputToken).deposit(_amountIn);
         } else { // withdrawal
             require(outputToken == tokens[_indexIn - 1], "invalid output token");
 
@@ -49,12 +52,17 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         IZkSync(zkSync).depositERC20(IERC20(outputToken), toUint104(amountOut), l2Account);
 
         emit Swapped(inputToken, _amountIn, outputToken, amountOut);
-        return amountOut;
     }
 
-    function addVault(address _token, address _yvToken) external onlyOwner {
+    function _addVault(address _yvToken) internal {
+        require(_yvToken != address(0), "null yvToken");
         require(tokens.length % 2 == 0, "illegal state");
-        tokens.push(_token);
+        tokens.push(IYearnVault(_yvToken).token());
         tokens.push(_yvToken);
+    }
+
+    function addVault(address _yvToken) external onlyOwner {
+        _addVault(_yvToken);
+        emit VaultAdded(_yvToken);
     }
 }
