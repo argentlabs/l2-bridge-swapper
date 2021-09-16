@@ -1,4 +1,7 @@
 const hre = require("hardhat");
+if (hre.network.name !== "hardhat") {
+  require("@nomiclabs/hardhat-etherscan");
+}
 
 const ConfigLoader = require("./utils/configurator-loader.js");
 
@@ -26,7 +29,6 @@ async function main() {
   configLoader.save(config);
 
   if (hre.network.name !== "hardhat") {
-    require("@nomiclabs/hardhat-etherscan");
     console.log("Uploading code to Etherscan...");
     await swapper.deployTransaction.wait(5);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
