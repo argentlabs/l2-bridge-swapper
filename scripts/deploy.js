@@ -8,6 +8,8 @@ async function main() {
   const configLoader = new ConfigLoader(hre.network.name);
   const config = configLoader.load();
 
+  // Lido
+
   args = [
     config.zkSync,
     config.argent["l2-account"],
@@ -22,6 +24,7 @@ async function main() {
 
   config.argent["lido-swapper"] = swapper.address;
   configLoader.save(config);
+
   if (hre.network.name !== "hardhat") {
     require("@nomiclabs/hardhat-etherscan");
     console.log("Uploading code to Etherscan...");
@@ -29,10 +32,12 @@ async function main() {
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
 
+  // Yearn
+
   args = [
     config.zkSync,
     config.argent["l2-account"],
-    [],
+    [config.yvUsdc],
   ];
   Swapper = await ethers.getContractFactory("YearnBridgeSwapper");
   swapper = await Swapper.deploy(...args, { gasLimit: 2_000_000 });
@@ -41,9 +46,10 @@ async function main() {
 
   config.argent["yearn-swapper"] = swapper.address;
   configLoader.save(config);
+
   if (hre.network.name !== "hardhat") {
     console.log("Uploading code to Etherscan...");
-    await swapper.deployTransaction.wait(10);
+    await swapper.deployTransaction.wait(5);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
 }

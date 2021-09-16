@@ -5,7 +5,7 @@ import "./ZkSyncBridgeSwapper.sol";
 import "./interfaces/IYearnVault.sol";
 
 /**
-* @notice Exchanges tokens for their respective yearn vault tokens.
+* @notice Exchanges tokens for their respective Yearn vault tokens.
 * NOTE: to add a new vault, put the underlying token at the even index,
 * immediately followed by the vault token at the odd index.
 * Example indexes:

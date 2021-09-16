@@ -53,6 +53,12 @@ describe("Yearn Bridge Swapper", function () {
     expect(await zap.owner()).to.equal(deployer.address);
   });
 
+  it("Should fail to deploy with invalid tokens", async function () {
+    const deploy = async (token) => await Zap.deploy(zkSync.address, l2Account.address, [token]);
+    await expect(deploy(ethers.constants.AddressZero)).to.be.revertedWith("null yvToken");
+    await expect(deploy(usdc.address)).to.be.reverted;
+  });
+
   it("Should swap yvDAI for DAI when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(dai.address, l2Account.address);
@@ -129,5 +135,12 @@ describe("Yearn Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     await expect(zap.exchange(0, 3, amountIn)).to.be.revertedWith("invalid output token");
     await expect(zap.exchange(3, 0, amountIn)).to.be.revertedWith("invalid output token");
+  });
+
+  it("Should fail to swap with identical indexes", async function () {
+    const amountIn = ethers.utils.parseEther("0.5");
+    await expect(zap.exchange(0, 0, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(1, 1, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(2, 2, amountIn)).to.be.revertedWith("invalid output token");
   });
 });
