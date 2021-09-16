@@ -15,7 +15,7 @@ async function main() {
 
   args = [
     config.zkSync,
-    config.argent["l2-account"],
+    config.argent["lido-l2-account"],
     config.wstETH,
     config["curve-steTH-pool"],
     config.argent["lido-referral"]
@@ -30,7 +30,7 @@ async function main() {
 
   if (hre.network.name !== "hardhat") {
     console.log("Uploading code to Etherscan...");
-    await swapper.deployTransaction.wait(5);
+    await swapper.deployTransaction.wait(3);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
 
@@ -38,7 +38,7 @@ async function main() {
 
   args = [
     config.zkSync,
-    config.argent["l2-account"],
+    config.argent["yearn-l2-account"],
     [config.yvUsdc],
   ];
   Swapper = await ethers.getContractFactory("YearnBridgeSwapper");
@@ -51,7 +51,7 @@ async function main() {
 
   if (hre.network.name !== "hardhat") {
     console.log("Uploading code to Etherscan...");
-    await swapper.deployTransaction.wait(5);
+    await swapper.deployTransaction.wait(3);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
 }
