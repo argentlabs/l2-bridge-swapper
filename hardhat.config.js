@@ -16,6 +16,11 @@ require("dotenv").config();
       accounts: [`0x${process.env.DEV_PKEY}`],
       chainId: 4,
     },
+    test: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+      accounts: [`0x${process.env.DEV_PKEY}`],
+      chainId: 3,
+    },
   },
   solidity: {
     compilers: [

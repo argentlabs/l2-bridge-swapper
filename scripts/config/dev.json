@@ -1,7 +1,7 @@
 {
   "zkSync": "0x82F67958A5474e40E1485742d648C0b0686b6e5D",
   "wstETH": "0xb770Ea0F1762D73c8719B52eF981f7F1D824d9a7",
-  "curve-steTH-pool": "0x30AC40E18129b65637f32734a0aE7964fc26c89d",
+  "curve-stETH-pool": "0x30AC40E18129b65637f32734a0aE7964fc26c89d",
   "usdc": "0xeb8f08a975ab53e34d8a0330e0d34de942c95926",
   "yvUsdc": "0x1a2640bd6a507c90b226c0fec1cb6d54ea6e8961",
   "argent": {

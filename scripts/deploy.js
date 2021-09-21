@@ -17,7 +17,7 @@ async function main() {
     config.zkSync,
     config.argent["lido-l2-account"],
     config.wstETH,
-    config["curve-steTH-pool"],
+    config["curve-stETH-pool"],
     config.argent["lido-referral"]
   ];
   Swapper = await ethers.getContractFactory("LidoBridgeSwapper");
@@ -39,7 +39,7 @@ async function main() {
   args = [
     config.zkSync,
     config.argent["yearn-l2-account"],
-    [config.yvUsdc],
+    [config.yvDai],
   ];
   Swapper = await ethers.getContractFactory("YearnBridgeSwapper");
   swapper = await Swapper.deploy(...args, { gasLimit: 2_000_000 });
@@ -54,6 +54,7 @@ async function main() {
     await swapper.deployTransaction.wait(3);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
+
 }
 
 main()
