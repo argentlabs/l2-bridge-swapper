@@ -9,9 +9,9 @@ import "./interfaces/ICurvePool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
-* Exchanges between ETH and stETH
+* Exchanges between ETH and wStETH
 * index 0: ETH
-* index 1: stETH
+* index 1: wStETH
 */
 contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
 
@@ -81,6 +81,9 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         transferZKSyncBalance(wStEth);
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
+        // approve pool
+        bool success = IERC20(stEth).approve(stEthPool, unwrapped);
+        require(success, "approve failed");
         // swap stEth for ETH on Curve
         uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
         // deposit Eth to L2 bridge
