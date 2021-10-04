@@ -31,16 +31,11 @@ describe("Yearn Bridge Swapper", function () {
     await yvDai.deposit(ethers.utils.parseEther("100"));
   })
 
-  async function sendETH(recipient, amount) {
-    await deployer.sendTransaction({ to: recipient, value: amount });
-  }
-
   beforeEach(async function() {
     zap = await Zap.deploy(zkSync.address, l2Account.address, [
       yvDai.address,
       yvUsdc.address,
     ]);
-    await sendETH(zap.address, amount);
     await dai.transfer(zap.address, amount);
     await yvDai.transfer(zap.address, amount);
     await dai.transfer(zkSync.address, amount);
@@ -139,8 +134,8 @@ describe("Yearn Bridge Swapper", function () {
 
   it("Should fail to swap with identical indexes", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 0, amountIn)).to.be.revertedWith("invalid output token");
-    await expect(zap.exchange(1, 1, amountIn)).to.be.revertedWith("invalid output token");
-    await expect(zap.exchange(2, 2, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(0, 0, amountIn)).to.be.revertedWith("invalid output index");
+    await expect(zap.exchange(1, 1, amountIn)).to.be.revertedWith("invalid output index");
+    await expect(zap.exchange(2, 2, amountIn)).to.be.revertedWith("invalid output index");
   });
 });

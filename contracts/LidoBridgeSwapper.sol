@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
 
     // The address of the stEth token
-    address public immutable stEth;
+    address public stEth;
     // The address of the wrapped stEth token
     address public immutable wStEth;
     // The address of the stEth/Eth Curve pool
@@ -30,9 +30,12 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         address _wStEth,
         address _stEthPool,
         address _lidoReferral
-    ) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+    )
+        ZkSyncBridgeSwapper(_zkSync, _l2Account)
+    {
         wStEth = _wStEth;
         stEth = IWstETH(_wStEth).stETH();
+        require(stEth == ICurvePool(_stEthPool).coins(1), "stEth mismatch");
         stEthPool = _stEthPool;
         lidoReferral =_lidoReferral;
     }
@@ -55,19 +58,17 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of ETH to swap.
     */
     function swapEthForStEth(uint256 _amountIn) internal returns (uint256) {
-        transferZKSyncBalance(ETH_TOKEN);
+        transferFromZkSync(ETH_TOKEN);
+
         // swap Eth for stEth on the Lido contract
         ILido(stEth).submit{value: _amountIn}(lidoReferral);
         // approve the wStEth contract to take the stEth
         IERC20(stEth).approve(wStEth, _amountIn);
         // wrap to wStEth
         uint256 amountOut = IWstETH(wStEth).wrap(_amountIn);
-        // approve the zkSync bridge to take the wrapped stEth
-        IERC20(wStEth).approve(zkSync, amountOut);
-        // deposit the wStEth to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(wStEth), toUint104(amountOut), l2Account);
-        // emit event
-        emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
+
+        transferToZkSync(ETH_TOKEN, _amountIn, wStEth, amountOut);
+
         // return deposited amount
         return amountOut;
     }
@@ -78,7 +79,8 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of wrapped stETH to swap.
     */
     function swapStEthForEth(uint256 _amountIn) internal returns (uint256) {
-        transferZKSyncBalance(wStEth);
+        transferFromZkSync(wStEth);
+
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
         // approve pool
@@ -86,10 +88,9 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         require(success, "approve failed");
         // swap stEth for ETH on Curve
         uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
-        // deposit Eth to L2 bridge
-        IZkSync(zkSync).depositETH{value: amountOut}(l2Account);
-        // emit event
-        emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
+
+        transferToZkSync(wStEth, _amountIn, ETH_TOKEN, amountOut);
+
         // return deposited amount
         return amountOut;
     }

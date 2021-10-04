@@ -47,13 +47,34 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
 
     /**
     * @dev Check if there is a pending balance to withdraw in zkSync and withdraw it if applicable.
-    * @param _token The token to withdaw.
+    * @param _token The token to withdraw.
     */
-    function transferZKSyncBalance(address _token) internal {
+    function transferFromZkSync(address _token) internal {
         uint128 pendingBalance = IZkSync(zkSync).getPendingBalance(address(this), _token);
         if (pendingBalance > 0) {
             IZkSync(zkSync).withdrawPendingBalance(payable(address(this)), _token, pendingBalance);
         }
+    }
+
+    /**
+    * @dev Deposit the ETH or ERC20 to zkSync and emit the Swapped event.
+    * @param _inputToken The token that was received.
+    * @param _amountIn The amount of received token.
+    * @param _outputToken The token that was given.
+    * @param _amountOut The amount of given token.
+    */
+    function transferToZkSync(address _inputToken, uint256 _amountIn, address _outputToken, uint256 _amountOut) internal {
+        if (_outputToken == ETH_TOKEN) {
+            // deposit Eth to L2 bridge
+            IZkSync(zkSync).depositETH{value: _amountOut}(l2Account);
+        } else {
+            // approve the zkSync bridge to take the output token
+            IERC20(_outputToken).approve(zkSync, _amountOut);
+            // deposit the output token to the L2 bridge
+            IZkSync(zkSync).depositERC20(IERC20(_outputToken), toUint104(_amountOut), l2Account);
+        }
+
+        emit Swapped(_inputToken, _amountIn, _outputToken, _amountOut);
     }
 
     /**

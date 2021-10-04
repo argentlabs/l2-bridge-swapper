@@ -27,7 +27,9 @@ contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
         address _l2Account,
         address[] memory _stataTokens,
         uint16 _aaveReferral
-    ) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+    )
+        ZkSyncBridgeSwapper(_zkSync, _l2Account)
+    {
         for (uint i = 0; i < _stataTokens.length; i++) {
             addPool(_stataTokens[i]);
         }
@@ -41,7 +43,7 @@ contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
         address inputToken = tokens[_indexIn];
         address outputToken = tokens[_indexOut];
 
-        transferZKSyncBalance(inputToken);
+        transferFromZkSync(inputToken);
 
         if (_indexIn % 2 == 0) { // deposit
             require(outputToken == tokens[_indexIn + 1], "invalid output token");
@@ -63,12 +65,7 @@ contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
             );
         }
 
-        // approve the zkSync bridge to take the output token
-        IERC20(outputToken).approve(zkSync, amountOut);
-        // deposit the output token to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(outputToken), toUint104(amountOut), l2Account);
-
-        emit Swapped(inputToken, _amountIn, outputToken, amountOut);
+        transferToZkSync(inputToken, _amountIn, outputToken, amountOut);
     }
 
     function addPool(address _stataToken) public onlyOwner {
