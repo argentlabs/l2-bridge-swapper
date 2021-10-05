@@ -20,6 +20,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
     ICurvePool public stEthPool;
     address public immutable lidoReferral;
+    address[2] public tokens;
 
     constructor(
         address _zkSync,
@@ -41,6 +42,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         require(crvStEth == stEthPool.lp_token(), "crvStEth mismatch");
         stEth = stEthPool.coins(1);
         lidoReferral =_lidoReferral;
+        tokens = [ETH_TOKEN, _yvCrvStEth];
     }
 
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
@@ -53,31 +55,38 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         transferFromZkSync(inputToken);
 
         if (_indexIn == 0) { // deposit
+            // ETH -> stETH
             uint256 ethAmount = _amountIn / 2;
             uint256 stEthAmount = _amountIn - ethAmount;
-
             ILido(stEth).submit{value: stEthAmount}(lidoReferral);
 
+            // stETH -> crvStETH
+            uint256 minLpAmount = getMinAmountOut(_amountIn / (stEthPool.get_virtual_price() * 1 ether));
             IERC20(stEth).approve(address(stEthPool), stEthAmount);
-            uint256 crvStEthAmount = stEthPool.add_liquidity{value: ethAmount}([ethAmount, stEthAmount], 1);
+            uint256 crvStEthAmount = stEthPool.add_liquidity{value: ethAmount}([ethAmount, stEthAmount], minLpAmount);
 
+            // crvStETH -> yvCrvStETH
             IERC20(crvStEth).approve(yvCrvStEth, crvStEthAmount);
             amountOut = IYearnVault(yvCrvStEth).deposit(crvStEthAmount);
         } else { // withdrawal
+            // yvCrvStETH -> crvStETH
             uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
 
-            uint256[2] memory minAmounts = stEthPool.remove_liquidity(crvStEthAmount, [uint256(1), 1]);
+            // crvStETH -> stETH & ETH
+            // leaving minAmounts at 1 because checking overall slippage at the end
+            uint256[2] memory amounts = stEthPool.remove_liquidity(crvStEthAmount, [uint256(1), 1]);
 
-            uint256 ethAmount = stEthPool.exchange(1, 0, minAmounts[1], getMinAmountOut(minAmounts[1]));
+            // stETH -> ETH
+            bool success = IERC20(stEth).approve(address(stEthPool), amounts[1]);
+            require(success, "approve failed");
+            uint256 ethAmount = stEthPool.exchange(1, 0, amounts[1], getMinAmountOut(amounts[1]));
+            amountOut = amounts[0] + ethAmount;
 
-            amountOut = minAmounts[0] + ethAmount;
+            // slippage check
+            uint256 minAmountOut = getMinAmountOut((crvStEthAmount * stEthPool.get_virtual_price()) / 1 ether);
+            require(amountOut >= minAmountOut, "withdrawal slippage");
         }
 
         transferToZkSync(inputToken, _amountIn, outputToken, amountOut);
-    }
-
-    function tokens(uint256 index) public view returns (address) {
-        require(index < 2, "only 2 tokens");
-        return index == 0 ? ETH_TOKEN : yvCrvStEth;
     }
 }

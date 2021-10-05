@@ -10,6 +10,7 @@ contract CurvePoolMock is ICurvePool {
     address public stETH;
     address[2] public override coins;
     address public override lp_token;
+    uint256 public override get_virtual_price = 1 ether;
 
     constructor(address _stETH, address _lpToken) {
         stETH = _stETH;
