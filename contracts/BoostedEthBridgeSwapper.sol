@@ -46,11 +46,9 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
     }
 
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
-        require(_indexIn < 2, "invalid input index");
-        require(_indexOut < 2 && _indexOut != _indexIn, "invalid output index");
+        require(_indexIn + _indexOut == 1, "invalid indexes");
 
-        address inputToken = _indexIn == 0 ? ETH_TOKEN : yvCrvStEth;
-        address outputToken = _indexOut == 0 ? ETH_TOKEN : yvCrvStEth;
+        (address inputToken, address outputToken) = _indexIn == 0 ? (ETH_TOKEN, yvCrvStEth) : (yvCrvStEth, ETH_TOKEN);
 
         transferFromZkSync(inputToken);
 
@@ -61,7 +59,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
             ILido(stEth).submit{value: stEthAmount}(lidoReferral);
 
             // stETH -> crvStETH
-            uint256 minLpAmount = getMinAmountOut(_amountIn / (stEthPool.get_virtual_price() * 1 ether));
+            uint256 minLpAmount = getMinAmountOut((_amountIn / stEthPool.get_virtual_price()) * 1 ether);
             IERC20(stEth).approve(address(stEthPool), stEthAmount);
             uint256 crvStEthAmount = stEthPool.add_liquidity{value: ethAmount}([ethAmount, stEthAmount], minLpAmount);
 
