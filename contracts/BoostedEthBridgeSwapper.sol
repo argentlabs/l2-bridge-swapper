@@ -41,7 +41,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
         require(crvStEth == stEthPool.lp_token(), "crvStEth mismatch");
         stEth = stEthPool.coins(1);
-        lidoReferral =_lidoReferral;
+        lidoReferral = _lidoReferral;
         tokens = [ETH_TOKEN, _yvCrvStEth];
     }
 
@@ -77,7 +77,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
             // stETH -> ETH
             bool success = IERC20(stEth).approve(address(stEthPool), amounts[1]);
             require(success, "approve failed");
-            uint256 ethAmount = stEthPool.exchange(1, 0, amounts[1], getMinAmountOut(amounts[1]));
+            uint256 ethAmount = stEthPool.exchange(1, 0, amounts[1], 1);
             amountOut = amounts[0] + ethAmount;
 
             // slippage check
