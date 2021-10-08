@@ -2,7 +2,7 @@
 pragma solidity ^0.8.3;
 
 interface IBridgeSwapper {
-    event Swapped(address _in, uint256 _amountIn, address _out, uint256 _amountOut);
+    event Swapped(address _inputToken, uint256 _amountIn, address _outputToken, uint256 _amountOut);
 
     /**
     * @notice Perform an exchange between two tokens

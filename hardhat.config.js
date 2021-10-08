@@ -1,5 +1,4 @@
 require("@nomiclabs/hardhat-waffle");
-require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
 /**
@@ -9,13 +8,18 @@ require("dotenv").config();
   networks: {
     hardhat: {
       forking: {
-        url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
       },
     },
     dev: {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
       accounts: [`0x${process.env.DEV_PKEY}`],
       chainId: 4,
+    },
+    test: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+      accounts: [`0x${process.env.DEV_PKEY}`],
+      chainId: 3,
     },
   },
   solidity: {
@@ -24,5 +28,8 @@ require("dotenv").config();
         version: "0.8.3",
       },
     ],
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
