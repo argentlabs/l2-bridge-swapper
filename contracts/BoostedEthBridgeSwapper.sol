@@ -48,27 +48,17 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
         require(_indexIn + _indexOut == 1, "invalid indexes");
 
-        (address inputToken, address outputToken) = _indexIn == 0 ? (ETH_TOKEN, yvCrvStEth) : (yvCrvStEth, ETH_TOKEN);
 
-        transferFromZkSync(inputToken);
-
-        if (_indexIn == 0) { // deposit
-            // ETH -> crvStETH
-            uint256 minLpAmount = getMinAmountOut((1 ether * _amountIn) / stEthPool.get_virtual_price());
-            uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], minLpAmount);
-
-            // crvStETH -> yvCrvStETH
-            IERC20(crvStEth).approve(yvCrvStEth, crvStEthAmount);
-            amountOut = IYearnVault(yvCrvStEth).deposit(crvStEthAmount);
-        } else { // withdrawal
-            // yvCrvStETH -> crvStETH
-            uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
-
-            // crvStETH -> ETH
-            uint256 minAmountOut = getMinAmountOut((crvStEthAmount * stEthPool.get_virtual_price()) / 1 ether);
-            amountOut = stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, minAmountOut);
+        if (_indexIn == 0) {
+            transferFromZkSync(ETH_TOKEN);
+            amountOut = exchangeETHforYVCRV(_amountIn)
+            transferToZkSync(yvCrvStEth, amountOut);
+            emit Swapped(ETH_TOKEN, _amountIn, yvCrvStEth, amountOut);
+        } else {
+            transferFromZkSync(yvCrvStEth);
+            amountOut = exchangeYVCRVforETH(_amountIn)
+            transferToZkSync(ETH_TOKEN, amountOut);
+            emit Swapped(yvCrvStEth, _amountIn, ETH_TOKEN, amountOut);
         }
-
-        transferToZkSync(inputToken, _amountIn, outputToken, amountOut);
     }
 }
