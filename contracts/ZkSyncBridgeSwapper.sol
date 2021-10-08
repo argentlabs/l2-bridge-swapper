@@ -57,13 +57,11 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
     }
 
     /**
-    * @dev Deposit the ETH or ERC20 to zkSync and emit the Swapped event.
-    * @param _inputToken The token that was received.
-    * @param _amountIn The amount of received token.
+    * @dev Deposit the ETH or ERC20 token to zkSync.
     * @param _outputToken The token that was given.
     * @param _amountOut The amount of given token.
     */
-    function transferToZkSync(address _inputToken, uint256 _amountIn, address _outputToken, uint256 _amountOut) internal {
+    function transferToZkSync(address _outputToken, uint256 _amountOut) internal {
         if (_outputToken == ETH_TOKEN) {
             // deposit Eth to L2 bridge
             IZkSync(zkSync).depositETH{value: _amountOut}(l2Account);
@@ -73,8 +71,6 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
             // deposit the output token to the L2 bridge
             IZkSync(zkSync).depositERC20(IERC20(_outputToken), toUint104(_amountOut), l2Account);
         }
-
-        emit Swapped(_inputToken, _amountIn, _outputToken, _amountOut);
     }
 
     /**
