@@ -46,7 +46,8 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
             amountOut = IYearnVault(inputToken).withdraw(_amountIn);
         }
 
-        transferToZkSync(inputToken, _amountIn, outputToken, amountOut);
+        transferToZkSync(outputToken, amountOut);
+        emit Swapped(inputToken, _amountIn, outputToken, amountOut);
     }
 
     function addVault(address _yvToken) public onlyOwner {
