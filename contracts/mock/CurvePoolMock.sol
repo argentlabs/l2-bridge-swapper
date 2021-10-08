@@ -34,7 +34,7 @@ contract CurvePoolMock is ICurvePool {
         require(_amounts[0] == msg.value, "value mismatch");
         LidoMock(stETH).burn(msg.sender, _amounts[1]);
         mintAmount = _amounts[0] + _amounts[1];
-        require(mintAmount > _minMintAmount, "slippage");
+        require(mintAmount >= _minMintAmount, "slippage");
         ERC20MintableBurnable(lp_token).mint(msg.sender, mintAmount);
     }
 
