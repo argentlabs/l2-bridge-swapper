@@ -2,14 +2,15 @@
 pragma solidity ^0.8.3;
 
 import "../interfaces/IYearnVault.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetFixedSupply.sol";
+import "./ERC20MintableBurnable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract YearnVaultMock is IYearnVault, ERC20 {
+contract YearnVaultMock is IYearnVault, ERC20MintableBurnable {
 
     address public override token;
+    uint256 public override pricePerShare = 1;
 
-    constructor(address _token) ERC20("Yearn Vault Token", "yvXXX") {
+    constructor(address _token) ERC20MintableBurnable("Yearn Vault Token", "yvXXX") {
         token = _token;
     }
 
