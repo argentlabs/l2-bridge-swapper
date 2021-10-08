@@ -38,16 +38,13 @@ contract CurvePoolMock is ICurvePool {
         ERC20MintableBurnable(lp_token).mint(msg.sender, mintAmount);
     }
 
-    function remove_liquidity(uint256 _amount, uint256[2] calldata _minAmounts) external payable override returns (uint256[2] memory amounts) {
+    function remove_liquidity_one_coin(uint256 _amount, int128 _i, uint256 _minAmount) external payable override returns (uint256) {
+        require(_i == 0, "withdraw ETH only");
         ERC20MintableBurnable(lp_token).burn(msg.sender, _amount);
-        uint256 ethAmount = _amount / 2;
-        uint256 stEthAmount = _amount - ethAmount;
-        require(address(this).balance >= ethAmount, "not enough ETH");
-        require(ethAmount >= _minAmounts[0], "ETH slippage");
-        require(stEthAmount >= _minAmounts[1], "stETH slippage");
-        (bool success, ) = msg.sender.call{value: ethAmount}("");
+        require(address(this).balance >= _amount, "not enough ETH");
+        require(_amount >= _minAmount, "ETH slippage");
+        (bool success, ) = msg.sender.call{value: _amount}("");
         require(success, "failed to send ETH");
-        LidoMock(stETH).mint(msg.sender, stEthAmount);
-        return [ethAmount, stEthAmount];
+        return _amount;
     }
 }

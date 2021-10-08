@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract YearnVaultMock is IYearnVault, ERC20MintableBurnable {
 
     address public override token;
+    uint256 public override pricePerShare = 1;
 
     constructor(address _token) ERC20MintableBurnable("Yearn Vault Token", "yvXXX") {
         token = _token;

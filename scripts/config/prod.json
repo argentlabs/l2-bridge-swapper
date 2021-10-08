@@ -1,0 +1,13 @@
+{
+  "zkSync": "0xabea9132b05a70803a4e85094fd0e1800777fbef",
+  "wstETH": "",
+  "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
+  "yearn-crvStETH-pool": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+  "argent": {
+    "lido-referral": "0x0000000000000000000000000000000000000000",
+    "lido-swapper": "",
+    "lido-l2-account": "",
+    "yearn-swapper": "",
+    "yearn-l2-account": ""
+  }
+}

@@ -53,15 +53,9 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         transferFromZkSync(inputToken);
 
         if (_indexIn == 0) { // deposit
-            // ETH -> stETH
-            uint256 ethAmount = _amountIn / 2;
-            uint256 stEthAmount = _amountIn - ethAmount;
-            ILido(stEth).submit{value: stEthAmount}(lidoReferral);
-
-            // stETH -> crvStETH
-            uint256 minLpAmount = getMinAmountOut((_amountIn / stEthPool.get_virtual_price()) * 1 ether);
-            IERC20(stEth).approve(address(stEthPool), stEthAmount);
-            uint256 crvStEthAmount = stEthPool.add_liquidity{value: ethAmount}([ethAmount, stEthAmount], minLpAmount);
+            // ETH -> crvStETH
+            uint256 minLpAmount = getMinAmountOut((1 ether * _amountIn) / stEthPool.get_virtual_price());
+            uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], minLpAmount);
 
             // crvStETH -> yvCrvStETH
             IERC20(crvStEth).approve(yvCrvStEth, crvStEthAmount);
@@ -70,19 +64,9 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
             // yvCrvStETH -> crvStETH
             uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
 
-            // crvStETH -> stETH & ETH
-            // leaving minAmounts at 1 because checking overall slippage at the end
-            uint256[2] memory amounts = stEthPool.remove_liquidity(crvStEthAmount, [uint256(1), 1]);
-
-            // stETH -> ETH
-            bool success = IERC20(stEth).approve(address(stEthPool), amounts[1]);
-            require(success, "approve failed");
-            uint256 ethAmount = stEthPool.exchange(1, 0, amounts[1], 1);
-            amountOut = amounts[0] + ethAmount;
-
-            // slippage check
+            // crvStETH -> ETH
             uint256 minAmountOut = getMinAmountOut((crvStEthAmount * stEthPool.get_virtual_price()) / 1 ether);
-            require(amountOut >= minAmountOut, "withdrawal slippage");
+            amountOut = stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, minAmountOut);
         }
 
         transferToZkSync(inputToken, _amountIn, outputToken, amountOut);
