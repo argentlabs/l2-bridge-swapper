@@ -22,7 +22,7 @@ describe("Lido Bridge Swapper", function () {
     Curve = await ethers.getContractFactory("CurvePoolMock");
     lido = await Lido.deploy();
     wstETH = await WstETH.deploy(lido.address);
-    curve = await Curve.deploy(lido.address);
+    curve = await Curve.deploy(lido.address, ethers.constants.AddressZero);
     zkSync = await ZkSync.deploy();
   })
 
@@ -111,7 +111,7 @@ describe("Lido Bridge Swapper", function () {
 
   it("Should emit event when swapping ETH for wrapped stETH", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(0, 1, amountIn)).to.emit(zap, "Swapped");
   });
 
   describe("Common methods", async function () {

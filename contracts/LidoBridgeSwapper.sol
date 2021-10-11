@@ -9,9 +9,9 @@ import "./interfaces/ICurvePool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
-* Exchanges between ETH and stETH
+* Exchanges between ETH and wStETH
 * index 0: ETH
-* index 1: stETH
+* index 1: wStETH
 */
 contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
 
@@ -30,23 +30,31 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         address _wStEth,
         address _stEthPool,
         address _lidoReferral
-    ) ZkSyncBridgeSwapper(_zkSync, _l2Account) {
+    )
+        ZkSyncBridgeSwapper(_zkSync, _l2Account)
+    {
         wStEth = _wStEth;
-        stEth = IWstETH(_wStEth).stETH();
+        address _stEth = IWstETH(_wStEth).stETH();
+        require(_stEth == ICurvePool(_stEthPool).coins(1), "stEth mismatch");
+        stEth = _stEth;
         stEthPool = _stEthPool;
-        lidoReferral =_lidoReferral;
+        lidoReferral = _lidoReferral;
     }
 
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
+        require(_indexIn + _indexOut == 1, "invalid indexes");
+
         if (_indexIn == 0) {
-            require(_indexOut == 1, "Invalid bought coin");
-            return swapEthForStEth(_amountIn);
+            transferFromZkSync(ETH_TOKEN);
+            amountOut = swapEthForStEth(_amountIn);
+            transferToZkSync(wStEth, amountOut);
+            emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
+        } else {
+            transferFromZkSync(wStEth);
+            amountOut = swapStEthForEth(_amountIn);
+            transferToZkSync(ETH_TOKEN, amountOut);
+            emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
         }
-        if (_indexIn == 1) {
-            require(_indexOut == 0, "Invalid bought coin");
-            return swapStEthForEth(_amountIn);
-        }
-        revert("Invalid sold coin");
     }
 
     /**
@@ -55,21 +63,12 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of ETH to swap.
     */
     function swapEthForStEth(uint256 _amountIn) internal returns (uint256) {
-        transferZKSyncBalance(ETH_TOKEN);
         // swap Eth for stEth on the Lido contract
         ILido(stEth).submit{value: _amountIn}(lidoReferral);
         // approve the wStEth contract to take the stEth
         IERC20(stEth).approve(wStEth, _amountIn);
-        // wrap to wStEth
-        uint256 amountOut = IWstETH(wStEth).wrap(_amountIn);
-        // approve the zkSync bridge to take the wrapped stEth
-        IERC20(wStEth).approve(zkSync, amountOut);
-        // deposit the wStEth to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(wStEth), toUint104(amountOut), l2Account);
-        // emit event
-        emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
-        // return deposited amount
-        return amountOut;
+        // wrap to wStEth and return deposited amount
+        return IWstETH(wStEth).wrap(_amountIn);
     }
 
     /**
@@ -78,16 +77,12 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of wrapped stETH to swap.
     */
     function swapStEthForEth(uint256 _amountIn) internal returns (uint256) {
-        transferZKSyncBalance(wStEth);
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
-        // swap stEth for ETH on Curve
-        uint256 amountOut = ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
-        // deposit Eth to L2 bridge
-        IZkSync(zkSync).depositETH{value: amountOut}(l2Account);
-        // emit event
-        emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
-        // return deposited amount
-        return amountOut;
+        // approve pool
+        bool success = IERC20(stEth).approve(stEthPool, unwrapped);
+        require(success, "approve failed");
+        // swap stEth for ETH on Curve and return deposited amount
+        return ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
     }
 }

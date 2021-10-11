@@ -5,7 +5,7 @@ import "./ZkSyncBridgeSwapper.sol";
 import "./interfaces/IYearnVault.sol";
 
 /**
-* @notice Exchanges tokens for their respective yearn vault tokens.
+* @notice Exchanges tokens for their respective Yearn vault tokens.
 * NOTE: to add a new vault, put the underlying token at the even index,
 * immediately followed by the vault token at the odd index.
 * Example indexes:
@@ -33,7 +33,7 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         address inputToken = tokens[_indexIn];
         address outputToken = tokens[_indexOut];
 
-        transferZKSyncBalance(inputToken);
+        transferFromZkSync(inputToken);
 
         if (_indexIn % 2 == 0) { // deposit
             require(outputToken == tokens[_indexIn + 1], "invalid output token");
@@ -46,11 +46,7 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
             amountOut = IYearnVault(inputToken).withdraw(_amountIn);
         }
 
-        // approve the zkSync bridge to take the output token
-        IERC20(outputToken).approve(zkSync, amountOut);
-        // deposit the output token to the L2 bridge
-        IZkSync(zkSync).depositERC20(IERC20(outputToken), toUint104(amountOut), l2Account);
-
+        transferToZkSync(outputToken, amountOut);
         emit Swapped(inputToken, _amountIn, outputToken, amountOut);
     }
 
