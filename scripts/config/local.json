@@ -1,10 +1,13 @@
 {
   "zkSync": "0x82F67958A5474e40E1485742d648C0b0686b6e5D",
   "wstETH": "0xb770Ea0F1762D73c8719B52eF981f7F1D824d9a7",
-  "curve-stETH-pool": "0x30AC40E18129b65637f32734a0aE7964fc26c89d",
+  "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
+  "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
   "argent": {
     "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0xD473f0Feb267bc6B1198F50C4f4b1E296d28E854",
-    "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0"
+    "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0",
+    "boosted-eth-swapper": "0x04C89607413713Ec9775E14b954286519d836FEf",
+    "boosted-eth-l2-account": ""
   }
 }
