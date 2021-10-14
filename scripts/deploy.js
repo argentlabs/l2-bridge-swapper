@@ -73,23 +73,10 @@ const deployBoostedEth = async () => (
   })
 );
 
-const deployAave = async () => (
-  deploySwapper({
-    contractName: "AaveBridgeSwapper", 
-    args: [
-      config.zkSync,
-      config.argent["aave-l2-account"],
-      // todo
-    ],
-    configKey: "aave-swapper"
-  })
-);
-
 module.exports = { 
   deployLido,
   deployYearn,
   deployBoostedEth,
-  deployAave,
 };
 
 (async () => {
@@ -106,7 +93,6 @@ module.exports = {
     // await deployLido();
     // await deployYearn();
     // await deployBoostedEth();
-    // await deployAave();
   } catch (error) {
     console.error(error);
     process.exit(1);
