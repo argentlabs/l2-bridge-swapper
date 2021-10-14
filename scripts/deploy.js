@@ -4,6 +4,7 @@ if (hre.network.name !== "hardhat") {
   require("@nomiclabs/hardhat-etherscan");
 }
 
+const { ethers } = hre;
 const configLoader = new ConfigLoader(hre.network.name);
 const config = configLoader.load();
 
@@ -93,6 +94,15 @@ module.exports = {
 
 (async () => {
   try {
+    const signer = await ethers.getSigner();
+    const balance = await ethers.provider.getBalance(signer.address);
+    console.log(`Deployer ETH balance: ${ethers.utils.formatEther(balance)}`);
+
+    const minimumBalance = ethers.utils.parseEther("0.2");
+    if (balance.lt(minimumBalance)) {
+      throw new Error("Not enough ETH, exiting");
+    }
+
     // await deployLido();
     // await deployYearn();
     // await deployBoostedEth();
