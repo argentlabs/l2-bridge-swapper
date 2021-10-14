@@ -14,11 +14,16 @@
     "dotenv": "^9.0.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.6",
-    "hardhat": "^2.6.2"
+    "hardhat": "^2.6.2",
+    "typescript": ">=3.7.0"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.1",
-    "lodash.merge": "^4.5.0",
-    "fs": "0.0.1-security"
+    "@rumblefishdev/hardhat-kms-signer": "argentlabs/hardhat-kms-signer#add-eth_sign-method",
+    "@types/mocha": "^5.2.6",
+    "aws-sdk": "^2.993.0",
+    "ethereumjs-util": "^7.0.0",
+    "fs": "0.0.1-security",
+    "lodash.merge": "^4.5.0"
   }
 }
