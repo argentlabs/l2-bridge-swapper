@@ -1,5 +1,4 @@
 require("@nomiclabs/hardhat-waffle");
-require("@nomiclabs/hardhat-etherscan");
 require("@rumblefishdev/hardhat-kms-signer");
 require("dotenv").config();
 
@@ -40,5 +39,8 @@ require("dotenv").config();
         version: "0.8.3",
       },
     ],
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
