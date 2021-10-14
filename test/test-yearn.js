@@ -20,12 +20,15 @@ describe("Yearn Bridge Swapper", function () {
     Zap = await ethers.getContractFactory("YearnBridgeSwapper");
     ZkSync = await ethers.getContractFactory("ZKSyncMock");
     YearnVault = await ethers.getContractFactory("YearnVaultMock");
-    ERC20 = await ethers.getContractFactory("ERC20PresetFixedSupply");
-    dai = await ERC20.deploy("DAI Token", "DAI", ethers.utils.parseEther("200"), deployer.address);
-    usdc = await ERC20.deploy("USD Coin Token", "USDC", ethers.utils.parseEther("200"), deployer.address);
+    ERC20 = await ethers.getContractFactory("ERC20MintableBurnable");
+    dai = await ERC20.deploy("DAI Token", "DAI");
+    usdc = await ERC20.deploy("USD Coin Token", "USDC");
     yvDai = await YearnVault.deploy(dai.address);
     yvUsdc = await YearnVault.deploy(usdc.address);
     zkSync = await ZkSync.deploy();
+
+    await dai.mint(deployer.address, ethers.utils.parseEther("200"));
+    await yvDai.mint(deployer.address, ethers.utils.parseEther("200"));
 
     await dai.approve(yvDai.address, ethers.utils.parseEther("100"));
     await yvDai.deposit(ethers.utils.parseEther("100"));
