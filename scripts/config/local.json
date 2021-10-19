@@ -6,14 +6,15 @@
   "gro-deposit-handler": "0xB7207Ea9446DcA1dEC1c1FC93c6Fcdf8B4a44F40",
   "gro-withdraw-handler": "0x641bEFA4dB601578A64F0Fc1f4E89E9869268Fe7",
   "gro-gvt": "0x3ADb04E127b9C0a5D36094125669d4603AC52a0c",
+  "gro-buoy": "0xbF8C81B2977B10F13A4AC542e72969a6E123f5fE",
   "argent": {
     "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0xD473f0Feb267bc6B1198F50C4f4b1E296d28E854",
     "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0",
     "boosted-eth-swapper": "0x04C89607413713Ec9775E14b954286519d836FEf",
     "boosted-eth-l2-account": "",
-    "gro-swapper": "0x04C89607413713Ec9775E14b954286519d836FEf",
+    "gro-swapper": "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
     "gro-l2-account": "0x0000000000000000000000000000000000000000",
-    "gro-referral": "0x0000000000000000000000000000000000000000"
+    "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31"
   }
 }

@@ -10,6 +10,7 @@
     "yearn-swapper": "",
     "yearn-l2-account": "",
     "boosted-eth-swapper": "",
-    "boosted-eth-l2-account": "0x0000000000000000000000000000000000000000"
+    "boosted-eth-l2-account": "0x0000000000000000000000000000000000000000",
+    "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31"
   }
 }
