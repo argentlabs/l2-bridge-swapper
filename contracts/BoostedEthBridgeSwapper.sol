@@ -20,7 +20,6 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
     ICurvePool public immutable stEthPool;
     address public immutable lidoReferral;
-    address[2] public tokens;
 
     constructor(
         address _zkSync,
@@ -43,7 +42,6 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         stEth = ICurvePool(_stEthPool).coins(1);
         stEthPool = ICurvePool(_stEthPool);
         lidoReferral = _lidoReferral;
-        tokens = [ETH_TOKEN, _yvCrvStEth];
     }
 
     function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
@@ -87,5 +85,13 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
     function yvCrvStEthPerEth() public view returns (uint256) {
         return (1 ether ** 2) / ethPerYvCrvStEth();
+    }
+
+    function tokens(uint256 index) external view returns (address) {
+        if (index == 0) {
+            return ETH_TOKEN;
+        } else {
+            return yvCrvStEth;
+        }
     }
 }
