@@ -87,8 +87,11 @@ contract GroBridgeSwapper is ZkSyncBridgeSwapper {
     }
 
     function swapGvtForStablecoin(uint256 _amountIn) public returns (uint256) {
-        uint256 minAmount = getMinAmountOut(IGroBuoy(buoy).lpToUsd(_amountIn));
-        IGroWithdrawHandler(withdrawHandler).withdrawByStablecoin(false, stablecoinIndex, _amountIn, minAmount);
+        uint256 usdAmount = IGroToken(gvt).getShareAssets(_amountIn);
+        uint256 lpAmount = IGroBuoy(buoy).usdToLp(usdAmount);
+        uint256 stableAmount = IGroBuoy(buoy).singleStableFromUsd(usdAmount, int128(uint128(stablecoinIndex)));
+        uint256 minAmount = getMinAmountOut(stableAmount);
+        IGroWithdrawHandler(withdrawHandler).withdrawByStablecoin(false, stablecoinIndex, lpAmount, minAmount);
 
         return IERC20(stablecoin).balanceOf(address(this));
     }

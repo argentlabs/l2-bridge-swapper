@@ -5,4 +5,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IGroToken is IERC20 {
     function pricePerShare() external view returns (uint256);
+
+    function getShareAssets(uint256) external view returns (uint256);
 }
