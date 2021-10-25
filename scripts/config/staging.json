@@ -6,10 +6,10 @@
   "argent": {
     "lido-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31",
     "lido-swapper": "",
-    "lido-l2-account": "",
+    "lido-l2-account": "0xd9bc104c9200534ef2158570cb9eed079fc3cb4d",
     "yearn-swapper": "",
-    "yearn-l2-account": "",
+    "yearn-l2-account": "0xcf1c324547834c1c2921b757e9ec84e50c52e5cc",
     "boosted-eth-swapper": "",
-    "boosted-eth-l2-account": ""
+    "boosted-eth-l2-account": "0x0779616bf670f609a4917a1426dfd3e526a2eeb4"
   }
 }
