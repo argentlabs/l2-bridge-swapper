@@ -8,6 +8,9 @@ const { ethers } = hre;
 const configLoader = new ConfigLoader(hre.network.name);
 const config = configLoader.load();
 
+const maxFeePerGas = ethers.utils.parseUnits("65", "gwei"); // "base fee + priority fee" on blocknative
+const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "max fee" on blocknative
+
 async function deploySwapper({contractName, configKey, args, options = {}}) {
   args.forEach((arg, index) => {
     if (typeof arg === "undefined") {
@@ -43,6 +46,10 @@ const deployLido = async () => (
       config.argent["lido-referral"]
     ],
     configKey: "lido-swapper",
+    options: {
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+    },
   })
 );
 
@@ -52,10 +59,17 @@ const deployYearn = async () => (
     args: [
       config.zkSync,
       config.argent["yearn-l2-account"],
-      [config.yvDai],
+      [
+        config.yvDai,
+        config.yvUsdc,
+        config.yvWbtc,
+      ],
     ],
     configKey: "yearn-swapper",
-    options: { gasLimit: 2_000_000 },
+    options: {
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+    },
   })
 );
 
@@ -82,6 +96,7 @@ module.exports = {
 (async () => {
   try {
     const signer = await ethers.getSigner();
+    console.log(`signer is ${signer.address}`)
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Deployer ETH balance: ${ethers.utils.formatEther(balance)}`);
 
@@ -91,7 +106,7 @@ module.exports = {
     }
 
     // await deployLido();
-    // await deployYearn();
+    await deployYearn();
     // await deployBoostedEth();
   } catch (error) {
     console.error(error);
