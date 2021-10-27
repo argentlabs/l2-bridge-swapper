@@ -76,22 +76,27 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
     function swapStablecoinForGvt(uint256 _amountIn) public returns (uint256) {
         uint256[3] memory inAmounts;
         inAmounts[stablecoinIndex] = _amountIn;
+        uint256 balanceBefore = IGroToken(gvt).balanceOf(address(this));
 
         IGroToken(gvt).approve(address(depositHandler), _amountIn);
         uint256 minLpAmount = getMinAmountOut(IGroBuoy(buoy).stableToLp(inAmounts, true));
         IGroDepositHandler(depositHandler).depositGvt(inAmounts, minLpAmount, groReferral);
 
-        return IGroToken(gvt).balanceOf(address(this));
+        uint256 balanceAfter = IGroToken(gvt).balanceOf(address(this));
+        return balanceAfter - balanceBefore;
     }
 
     function swapGvtForStablecoin(uint256 _amountIn) public returns (uint256) {
+        uint256 balanceBefore = IERC20(stablecoin).balanceOf(address(this));
+
         uint256 usdAmount = IGroToken(gvt).getShareAssets(_amountIn);
         uint256 lpAmount = IGroBuoy(buoy).usdToLp(usdAmount);
         uint256 stableAmount = IGroBuoy(buoy).singleStableFromUsd(usdAmount, int128(uint128(stablecoinIndex)));
         uint256 minAmount = getMinAmountOut(stableAmount);
         IGroWithdrawHandler(withdrawHandler).withdrawByStablecoin(false, stablecoinIndex, lpAmount, minAmount);
 
-        return IERC20(stablecoin).balanceOf(address(this));
+        uint256 balanceAfter = IERC20(stablecoin).balanceOf(address(this));
+        return balanceAfter - balanceBefore;
     }
 
     function tokens(uint256 index) external view returns (address) {
