@@ -73,16 +73,14 @@ const deployBoostedEth = async () => (
   })
 );
 
-const deployGro = async (stablecoinIndex = 0) => (
+const deployGroGvt = async (stablecoinIndex = 0) => (
   deploySwapper({
-    contractName: "GroBridgeSwapper", 
+    contractName: "GroGvtBridgeSwapper", 
     args: [
       config.zkSync,
       config.argent["gro-l2-account"],
-      config["gro-deposit-handler"],
-      config["gro-withdraw-handler"],
+      config["gro-controller"],
       stablecoinIndex,
-      config["gro-gvt"],
       config.argent["gro-referral"],
     ],
     configKey: "gro-swapper"
@@ -93,7 +91,7 @@ module.exports = {
   deployLido,
   deployYearn,
   deployBoostedEth,
-  deployGro,
+  deployGroGvt,
 };
 
 (async () => {

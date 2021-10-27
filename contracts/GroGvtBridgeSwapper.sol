@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * 0: DAI
  * 1: GVT
  */
-contract GroBridgeSwapper is ZkSyncBridgeSwapper {
+contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
 
     address public immutable depositHandler;
     address public immutable withdrawHandler;
@@ -74,7 +74,7 @@ contract GroBridgeSwapper is ZkSyncBridgeSwapper {
     }
 
     function swapStablecoinForGvt(uint256 _amountIn) public returns (uint256) {
-        uint256[3] memory inAmounts = [uint256(0), 0, 0];
+        uint256[3] memory inAmounts;
         inAmounts[stablecoinIndex] = _amountIn;
 
         IGroToken(gvt).approve(address(depositHandler), _amountIn);
