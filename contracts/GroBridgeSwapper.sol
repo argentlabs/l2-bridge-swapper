@@ -2,6 +2,7 @@
 pragma solidity ^0.8.3;
 
 import "./ZkSyncBridgeSwapper.sol";
+import "./interfaces/IGroController.sol";
 import "./interfaces/IGroToken.sol";
 import "./interfaces/IGroDepositHandler.sol";
 import "./interfaces/IGroWithdrawHandler.sol";
@@ -9,11 +10,11 @@ import "./interfaces/IGroBuoy.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
-* @notice Exchanges a stablecoin for Gro Vault LP tokens.
-* Example indexes:
-* 0: DAI
-* 1: GVT
-*/
+ * @notice Exchanges a stablecoin for Gro Vault LP tokens.
+ * Example indexes:
+ * 0: DAI
+ * 1: GVT
+ */
 contract GroBridgeSwapper is ZkSyncBridgeSwapper {
 
     address public immutable depositHandler;
@@ -27,35 +28,32 @@ contract GroBridgeSwapper is ZkSyncBridgeSwapper {
     constructor(
         address _zkSync,
         address _l2Account,
-        address _depositHandler,
-        address _withdrawHandler,
+        address _groController,
         uint256 _stablecoinIndex,
-        address _gvt,
-        address _buoy,
         address _groReferral
     )
         ZkSyncBridgeSwapper(_zkSync, _l2Account)
     {
-        require(_depositHandler != address(0), "null _depositHandler");
-        require(_withdrawHandler != address(0), "null _withdrawHandler");
-        require(_gvt != address(0), "null _gvt");
-        require(_buoy != address(0), "null _buoy");
-        require(_stablecoinIndex < 3, "invalid _stablecoinIndex");
+        require(_groController != address(0), "null _groController");
+        IGroController controller = IGroController(_groController);
 
+        require(_stablecoinIndex < 3, "invalid _stablecoinIndex");
         address _stablecoin;
         if (_stablecoinIndex == 0) {
-            _stablecoin = IGroDepositHandler(_depositHandler).DAI();
+            _stablecoin = controller.DAI();
         } else if (_stablecoinIndex == 1) {
-            _stablecoin = IGroDepositHandler(_depositHandler).USDC();
+            _stablecoin = controller.USDC();
         } else if (_stablecoinIndex == 2) {
-            _stablecoin = IGroDepositHandler(_depositHandler).USDT();
+            _stablecoin = controller.USDT();
+        } else {
+            revert("invalid _stablecoinIndex");
         }
-        depositHandler = _depositHandler;
-        withdrawHandler = _withdrawHandler;
         stablecoin = _stablecoin;
         stablecoinIndex = _stablecoinIndex;
-        gvt = _gvt;
-        buoy = _buoy;
+        depositHandler = controller.depositHandler();
+        withdrawHandler = controller.withdrawHandler();
+        gvt = controller.gvt();
+        buoy = controller.buoy();
         groReferral = _groReferral;
     }
 
