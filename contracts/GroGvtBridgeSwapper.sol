@@ -45,8 +45,6 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
             _stablecoin = controller.USDC();
         } else if (_stablecoinIndex == 2) {
             _stablecoin = controller.USDT();
-        } else {
-            revert("invalid _stablecoinIndex");
         }
         stablecoin = _stablecoin;
         stablecoinIndex = _stablecoinIndex;

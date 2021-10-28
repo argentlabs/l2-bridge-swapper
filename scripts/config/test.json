@@ -3,8 +3,8 @@
   "wstETH": "0x3FD7Bf4b341B724D3714dd562B47E49c089e0701",
   "curve-stETH-pool": "0x6b04cc073C2c9eE745629D7Bb5A0b6329235D955",
   "yearn-crvStETH-vault": "0x4EC441e153047Fd13ae26eC527Abecf871eA6A3d",
-  "dai": "0x351714df444b8213f2c46aaa28829fc5a8921304",
   "yvDai": "0x6caa902BFAC03F49d857e3BF05EfFC4D181f4d39",
+  "gro-controller": "0x8A59743BBC178063BE23603B39059e1DFE9edD22",
   "argent": {
     "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0x639fbA9620406930459e03a86f3E6137b74F84A1",
@@ -12,6 +12,9 @@
     "yearn-swapper": "0x26D125B4768eD0d08B306C9D958DCb7DF6FA2105",
     "yearn-l2-account": "0xf548a91d30e5404b56a590d3bb3abedb6232da79",
     "boosted-eth-swapper": "0xc553E9A518B256a85EDe6d49983aA14B3cd2Ec97",
-    "boosted-eth-l2-account": "0x2234b8b5443e96fbc82c4e87ceb38e7194c5e2a3"
+    "boosted-eth-l2-account": "0x2234b8b5443e96fbc82c4e87ceb38e7194c5e2a3",
+    "gro-l2-account": "0xaabbad66aafc93fccc8729006bf4f14f4fe882ca",
+    "gro-referral": "0x0000000000000000000000000000000000000000",
+    "gro-swapper": "0x23A92164FD74B10a75F4524f27F32e10f80E519D"
   }
 }

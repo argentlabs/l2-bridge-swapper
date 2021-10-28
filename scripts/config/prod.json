@@ -3,6 +3,7 @@
   "wstETH": "",
   "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
   "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+  "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
   "argent": {
     "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "",
