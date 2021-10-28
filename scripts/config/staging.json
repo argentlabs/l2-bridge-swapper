@@ -5,14 +5,14 @@
   "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
   "yvDai": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
   "yvUsdc": "0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
-  "yvWbtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
+  "yvWBtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
   "argent": {
     "lido-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31",
     "lido-swapper": "0x935E9465B8582b089e0D9CDacb52f92A1ADfA8E1",
     "lido-l2-account": "0xd9bc104c9200534ef2158570cb9eed079fc3cb4d",
     "yearn-swapper": "0xDEa6888997D4843143d20BA2C85F0D3A6fbEcccD",
     "yearn-l2-account": "0xcf1c324547834c1c2921b757e9ec84e50c52e5cc",
-    "boosted-eth-swapper": "",
+    "boosted-eth-swapper": "0x203a5395cC471Dd9f21EB72017A6f41e1bffbd15",
     "boosted-eth-l2-account": "0x0779616bf670f609a4917a1426dfd3e526a2eeb4"
   }
 }

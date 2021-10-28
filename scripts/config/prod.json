@@ -3,6 +3,9 @@
   "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
   "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
   "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+  "yvDai": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+  "yvUsdc": "0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
+  "yvWBtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
   "argent": {
     "lido-referral": "0xef8e1b4b676a5285db79d55d3288bc5fe65c71cc",
     "lido-swapper": "",

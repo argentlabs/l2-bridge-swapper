@@ -8,8 +8,8 @@ const { ethers } = hre;
 const configLoader = new ConfigLoader(hre.network.name);
 const config = configLoader.load();
 
-const maxFeePerGas = ethers.utils.parseUnits("65", "gwei"); // "base fee + priority fee" on blocknative
-const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "max fee" on blocknative
+const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + priority fee" on blocknative
+const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
 
 async function deploySwapper({contractName, configKey, args, options = {}}) {
   args.forEach((arg, index) => {
@@ -46,10 +46,7 @@ const deployLido = async () => (
       config.argent["lido-referral"]
     ],
     configKey: "lido-swapper",
-    options: {
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-    },
+    options: { maxFeePerGas, maxPriorityFeePerGas },
   })
 );
 
@@ -62,14 +59,11 @@ const deployYearn = async () => (
       [
         config.yvDai,
         config.yvUsdc,
-        config.yvWbtc,
+        config.yvWBtc,
       ],
     ],
     configKey: "yearn-swapper",
-    options: {
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-    },
+    options: { maxFeePerGas, maxPriorityFeePerGas },
   })
 );
 
@@ -83,7 +77,8 @@ const deployBoostedEth = async () => (
       config["curve-stETH-pool"],
       config.argent["lido-referral"],
     ],
-    configKey: "boosted-eth-swapper"
+    configKey: "boosted-eth-swapper",
+    options: { maxFeePerGas, maxPriorityFeePerGas },
   })
 );
 
@@ -95,7 +90,7 @@ module.exports = {
 
 (async () => {
   try {
-    const signer = await ethers.getSigner();
+    const [signer] = await ethers.getSigners();
     console.log(`signer is ${signer.address}`)
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Deployer ETH balance: ${ethers.utils.formatEther(balance)}`);
@@ -106,8 +101,8 @@ module.exports = {
     }
 
     // await deployLido();
-    await deployYearn();
-    // await deployBoostedEth();
+    // await deployYearn();
+    await deployBoostedEth();
   } catch (error) {
     console.error(error);
     process.exit(1);
