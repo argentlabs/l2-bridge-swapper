@@ -91,9 +91,9 @@ module.exports = {
 (async () => {
   try {
     const [signer] = await ethers.getSigners();
-    console.log(`signer is ${signer.address}`)
+    console.log(`Signer is ${signer.address}`);
     const balance = await ethers.provider.getBalance(signer.address);
-    console.log(`Deployer ETH balance: ${ethers.utils.formatEther(balance)}`);
+    console.log(`Signer ETH balance: ${ethers.utils.formatEther(balance)}`);
 
     const minimumBalance = ethers.utils.parseEther("0.2");
     if (balance.lt(minimumBalance)) {
@@ -102,7 +102,7 @@ module.exports = {
 
     // await deployLido();
     // await deployYearn();
-    await deployBoostedEth();
+    // await deployBoostedEth();
   } catch (error) {
     console.error(error);
     process.exit(1);
