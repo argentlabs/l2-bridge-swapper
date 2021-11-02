@@ -117,7 +117,7 @@ describe("Lido Bridge Swapper", function () {
   describe("Common methods", async function () {
     it("Should recover ETH", async function () {
       const ownerBalance = await ethers.provider.getBalance(deployer.address);
-      await zap.recoverToken(ethers.constants.AddressZero);
+      await zap.recoverToken(deployer.address, ethers.constants.AddressZero);
       const ownerBalanceAfter = await ethers.provider.getBalance(deployer.address);
       expect(await ethers.provider.getBalance(zap.address)).to.equal(0);
       expect(ownerBalanceAfter).to.be.gt(ownerBalance);
@@ -125,7 +125,7 @@ describe("Lido Bridge Swapper", function () {
 
     it("Should recover ERC20", async function () {
       const ownerBalance = await wstETH.balanceOf(deployer.address);
-      await zap.recoverToken(wstETH.address);
+      await zap.recoverToken(deployer.address, wstETH.address);
       const ownerBalanceAfter = await wstETH.balanceOf(deployer.address);
       expect(await wstETH.balanceOf(zap.address)).to.equal(0);
       expect(ownerBalanceAfter).to.be.gt(ownerBalance);
