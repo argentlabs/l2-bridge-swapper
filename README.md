@@ -2,30 +2,30 @@
 
 ## Objective
 
-The goal of the `Swapper` contracts is to orchestrate the rebalancing of a liquidity pool in Layer 2 (L2) and to pool Defi tokens from L1 to L2.
+The goal of the `Swapper` contracts is to rebalance liquidity pools on Layer 2 (L2) and to bridge DeFi tokens from L1 to L2.
 
-Argent operates liquidity pools in Layer 2. Each pool is made of a Defi token (stETH, yUSDC, etc) and a native token (ETH, USDC, etc). Users can buy and sell the Defi token on the Layer 2 in exchange of the native token. 
+Argent operates the liquidity pools on L2. Each pool is made of a DeFi LP token (stETH, yvUSDC, etc) and its underlying token (ETH, USDC, etc). Users can buy and sell the LP token on L2 in exchange for the underlying token. 
 
-As trades accumulate, the liquidity in the pool becomes unbalanced. The operator of the pool can decide to withdraw the excess tokens from L2 to a dedicated `Swapper` contract on L1 which will orchestrate the exchange of the excess token and deposit back the exchanged tokens to the liquidity pool in L2 in one atomic transaction.
+As trades accumulate, the liquidity in the pool becomes unbalanced. The operator of the pool can decide to withdraw the excess tokens from L2 to a dedicated `Swapper` contract on L1 which will exchange the excess tokens for the scarce tokens and deposit back the exchanged tokens to the liquidity pool on L2 in one atomic transaction.
 
-The target L2 is ZkSync v1.0.
+The target L2 is zkSync v1.0.
 
-## Defi tokens
+## DeFi tokens
 
-The following Defi tokens are currently supported
+The following DeFi tokens pairs are currently supported:
 
 - stETH / ETH using Lido Finance
-- yUSDC / USDC using Yearn
-- yDAI / DAI using Yearn
-- yWBTC / WBTC using Yearn
-- crvStEth / ETH using Yearn
+- yvUSDC / USDC using Yearn
+- yvDAI / DAI using Yearn
+- yvWBTC / WBTC using Yearn
+- yvCrvStETH / ETH using Yearn
 - GVT / DAI using Gro Protocol
 - GVT / USDC using Gro Protocol
 
 ## Specification
 
-Each `Swapper` contract must
+Each `Swapper` contract must:
 
-- exchange a Defi token for its native token, or vice versa, in one atomic transaction.
-- allow anyone to call the `exchange` method and swap one token for the other provided that the contract has sufficient balance.
-- allow the owner to recover tokens if needed
+- Exchange a DeFi token for its underlying token, or vice versa, in one atomic transaction.
+- Allow anyone to call the `exchange` method and swap one token for the other, provided that the contract has sufficient balance.
+- Allow the owner to recover tokens if needed.
