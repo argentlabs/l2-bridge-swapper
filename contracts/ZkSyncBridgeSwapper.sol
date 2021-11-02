@@ -77,14 +77,14 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
     * @dev Safety method to recover ETH or ERC20 tokens that are sent to the contract by error.
     * @param _token The token to recover.
     */
-    function recoverToken(address _token) external returns (uint256 balance) {
+    function recoverToken(address _recipient, address _token) external onlyOwner returns (uint256 balance) {
         bool success;
         if (_token == ETH_TOKEN) {
             balance = address(this).balance;
-            (success, ) = owner.call{value: balance}("");
+            (success, ) = _recipient.call{value: balance}("");
         } else {
             balance = IERC20(_token).balanceOf(address(this));
-            success = IERC20(_token).transfer(owner, balance);
+            success = IERC20(_token).transfer(_recipient, balance);
         }
         require(success, "failed to recover");
     }

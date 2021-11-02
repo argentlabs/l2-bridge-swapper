@@ -3,11 +3,15 @@
   "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
   "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
   "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+  "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
   "argent": {
     "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0xD473f0Feb267bc6B1198F50C4f4b1E296d28E854",
     "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0",
     "boosted-eth-swapper": "0x04C89607413713Ec9775E14b954286519d836FEf",
-    "boosted-eth-l2-account": ""
+    "boosted-eth-l2-account": "",
+    "gro-swapper": "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+    "gro-l2-account": "0x0000000000000000000000000000000000000000",
+    "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31"
   }
 }
