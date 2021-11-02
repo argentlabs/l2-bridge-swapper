@@ -87,11 +87,12 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         return (1 ether ** 2) / ethPerYvCrvStEth();
     }
 
-    function tokens(uint256 index) external view returns (address) {
-        if (index == 0) {
+    function tokens(uint256 _index) external view returns (address) {
+        if (_index == 0) {
             return ETH_TOKEN;
-        } else {
+        } else if (_index == 1) {
             return yvCrvStEth;
         }
+        revert("invalid _index");
     }
 }

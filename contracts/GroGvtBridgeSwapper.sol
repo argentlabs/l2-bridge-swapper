@@ -38,15 +38,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         IGroController controller = IGroController(_groController);
 
         require(_stablecoinIndex < 3, "invalid _stablecoinIndex");
-        address _stablecoin;
-        if (_stablecoinIndex == 0) {
-            _stablecoin = controller.DAI();
-        } else if (_stablecoinIndex == 1) {
-            _stablecoin = controller.USDC();
-        } else if (_stablecoinIndex == 2) {
-            _stablecoin = controller.USDT();
-        }
-        stablecoin = _stablecoin;
+        stablecoin = controller.stablecoins()[_stablecoinIndex];
         stablecoinIndex = _stablecoinIndex;
         depositHandler = controller.depositHandler();
         withdrawHandler = controller.withdrawHandler();
@@ -76,7 +68,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         inAmounts[stablecoinIndex] = _amountIn;
         uint256 balanceBefore = IGroToken(gvt).balanceOf(address(this));
 
-        IGroToken(gvt).approve(address(depositHandler), _amountIn);
+        IERC20(stablecoin).approve(depositHandler, _amountIn);
         uint256 minLpAmount = getMinAmountOut(IGroBuoy(buoy).stableToLp(inAmounts, true));
         IGroDepositHandler(depositHandler).depositGvt(inAmounts, minLpAmount, groReferral);
 
@@ -97,11 +89,12 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         return balanceAfter - balanceBefore;
     }
 
-    function tokens(uint256 index) external view returns (address) {
-        if (index == 0) {
+    function tokens(uint256 _index) external view returns (address) {
+        if (_index == 0) {
             return stablecoin;
-        } else {
+        } else if (_index == 1) {
             return gvt;
         }
+        revert("invalid _index");
     }
 }
