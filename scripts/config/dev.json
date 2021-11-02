@@ -5,9 +5,9 @@
   "yvUsdc": "0x1a2640bd6a507c90b226c0fec1cb6d54ea6e8961",
   "gro-controller": "",
   "argent": {
-    "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0x4a5dDfcdfC440CaCC701a5101A64C90b46B09930",
     "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0",
+    "lido-referral": "0x0000000000000000000000000000000000000000",
     "yearn-swapper": "0xcc45bebDC334994d1d8D290BF463DEF9100dCF5D",
     "yearn-l2-account": "0x549420465de77c8139254b8b1e2e5817fbf8b478",
     "boosted-eth-swapper": "",

@@ -21,7 +21,8 @@ async function deploySwapper({contractName, configKey, args, options = {}}) {
   const Swapper = await ethers.getContractFactory(contractName);
   const swapper = await Swapper.deploy(...args, options);
   console.log(`Deploying ${contractName} to:`, swapper.address);
-  await swapper.deployed();
+  const tx = await swapper.deployed();
+  console.log(`Deployment tx ${tx.hash}`);
 
   config.argent[configKey] = swapper.address;
   configLoader.save(config);
@@ -82,19 +83,25 @@ const deployBoostedEth = async () => (
   })
 );
 
-const deployGroGvt = async (stablecoinIndex = 0) => (
+const deployGroGvt = async (stablecoin) => {
+  const stablecoins = ["dai", "usdc", "usdt"];
+  const index = stablecoins.indexOf(stablecoin);
+  if (index < 0) {
+    throw new Error("Invalid stablecoin");
+  }
+
   deploySwapper({
     contractName: "GroGvtBridgeSwapper", 
     args: [
       config.zkSync,
-      config.argent["gro-l2-account"],
+      config.argent[`gro-${stablecoin}-l2-account`],
       config["gro-controller"],
-      stablecoinIndex,
+      index,
       config.argent["gro-referral"],
     ],
-    configKey: "gro-swapper"
-  })
-);
+    configKey: `gro-${stablecoin}-swapper`
+  });
+};
 
 module.exports = { 
   deployLido,
@@ -118,7 +125,8 @@ module.exports = {
     // await deployLido();
     // await deployYearn();
     // await deployBoostedEth();
-    // await deployGro();
+    // await deployGroGvt("dai");
+    await deployGroGvt("usdc");
 
   } catch (error) {
     console.error(error);

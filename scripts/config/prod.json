@@ -8,9 +8,9 @@
   "yvWBtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
   "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
   "argent": {
-    "lido-referral": "0xef8e1b4b676a5285db79d55d3288bc5fe65c71cc",
     "lido-swapper": "",
     "lido-l2-account": "",
+    "lido-referral": "0xef8e1b4b676a5285db79d55d3288bc5fe65c71cc",
     "yearn-swapper": "",
     "yearn-l2-account": "",
     "boosted-eth-swapper": "",
