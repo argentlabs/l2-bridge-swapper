@@ -10,6 +10,7 @@ const config = configLoader.load();
 
 const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + priority fee" on blocknative
 const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
+const gasOptions = { maxFeePerGas, maxPriorityFeePerGas };
 
 async function deploySwapper({contractName, configKey, args, options = {}}) {
   args.forEach((arg, index) => {
@@ -47,7 +48,7 @@ const deployLido = async () => (
       config.argent["lido-referral"]
     ],
     configKey: "lido-swapper",
-    options: { maxFeePerGas, maxPriorityFeePerGas },
+    options: gasOptions,
   })
 );
 
@@ -64,7 +65,7 @@ const deployYearn = async () => (
       ],
     ],
     configKey: "yearn-swapper",
-    options: { maxFeePerGas, maxPriorityFeePerGas },
+    options: gasOptions,
   })
 );
 
@@ -79,7 +80,7 @@ const deployBoostedEth = async () => (
       config.argent["lido-referral"],
     ],
     configKey: "boosted-eth-swapper",
-    options: { maxFeePerGas, maxPriorityFeePerGas },
+    options: gasOptions,
   })
 );
 
@@ -99,7 +100,8 @@ const deployGroGvt = async (stablecoin) => {
       index,
       config.argent["gro-referral"],
     ],
-    configKey: `gro-${stablecoin}-swapper`
+    configKey: `gro-${stablecoin}-swapper`,
+    options: gasOptions,
   });
 };
 
@@ -126,7 +128,7 @@ module.exports = {
     // await deployYearn();
     // await deployBoostedEth();
     // await deployGroGvt("dai");
-    await deployGroGvt("usdc");
+    // await deployGroGvt("usdc");
 
   } catch (error) {
     console.error(error);
