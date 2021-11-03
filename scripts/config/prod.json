@@ -9,12 +9,16 @@
   "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
   "argent": {
     "lido-swapper": "",
-    "lido-l2-account": "",
+    "lido-l2-account": "0x4d4c6545c17396bdfb7c635ca5c5361d00335aa2",
     "lido-referral": "0xef8e1b4b676a5285db79d55d3288bc5fe65c71cc",
     "yearn-swapper": "",
-    "yearn-l2-account": "",
+    "yearn-l2-account": "0x0ec9b7ef4c071bbcc8ac47b79eba7646d4c1498a",
     "boosted-eth-swapper": "",
-    "boosted-eth-l2-account": "",
+    "boosted-eth-l2-account": "0xf92f4d924faf02d94f37bb886966fd2460f924fd",
+    "gro-dai-swapper": "",
+    "gro-dai-l2-account": "0xe4c0297ba4722d702a19cf0ab95b24658e8ad7d3",
+    "gro-usdc-swapper": "",
+    "gro-usdc-l2-account": "0x49be86d32fcb8fceec21fbe627e98424e1f59b1c",
     "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31"
   }
 }

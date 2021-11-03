@@ -15,7 +15,10 @@
     "yearn-l2-account": "0xcf1c324547834c1c2921b757e9ec84e50c52e5cc",
     "boosted-eth-swapper": "0x203a5395cC471Dd9f21EB72017A6f41e1bffbd15",
     "boosted-eth-l2-account": "0x0779616bf670f609a4917a1426dfd3e526a2eeb4",
-    "gro-dai-l2-account": "0xfe47df382fe1f4e64b805fdf8a4de0c07bacdfb0",
+    "gro-dai-swapper": "",
+    "gro-dai-l2-account": "",
+    "gro-usdc-swapper": "",
+    "gro-usdc-l2-account": "",
     "gro-referral": "0x0000000000000000000000000000000000000000"
   }
 } 
