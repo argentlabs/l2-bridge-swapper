@@ -15,10 +15,10 @@
     "yearn-l2-account": "0xcf1c324547834c1c2921b757e9ec84e50c52e5cc",
     "boosted-eth-swapper": "0x203a5395cC471Dd9f21EB72017A6f41e1bffbd15",
     "boosted-eth-l2-account": "0x0779616bf670f609a4917a1426dfd3e526a2eeb4",
-    "gro-dai-swapper": "",
+    "gro-dai-swapper": "0x91E1A205EE125C685Fc58D9B258F8564b593f3B3",
     "gro-dai-l2-account": "0xfe47df382fe1f4e64b805fdf8a4de0c07bacdfb0",
-    "gro-usdc-swapper": "",
+    "gro-usdc-swapper": "0x5093E5080c89A247Bd9296f4638Ed94d78c76341",
     "gro-usdc-l2-account": "0x59337e7eaff88de66c50fd2f76b02ed69eccdb60",
     "gro-referral": "0x0000000000000000000000000000000000000000"
   }
-} 
+}
