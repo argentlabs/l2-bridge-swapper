@@ -36,10 +36,9 @@ describe("Gro Bridge Swapper", function() {
     console.log(`tx is ${tx.hash}`);
   });
 
-  it.skip("Should exchange DAI for GVT", async () => {
-    const depositHandlerAddress = await swapper.depositHandler();
-    const depositHandler = await ethers.getContractAt("IGroDepositHandler", depositHandlerAddress);
-
+  it("Should exchange DAI for GVT", async () => {
+    // const depositHandlerAddress = await swapper.depositHandler();
+    // const depositHandler = await ethers.getContractAt("IGroDepositHandler", depositHandlerAddress);
     // const maxFeePerGas = ethers.utils.parseUnits("400", "gwei"); // "base fee + priority fee" on blocknative
     // const maxPriorityFeePerGas = ethers.utils.parseUnits("5", "gwei"); // "priority fee" on blocknative
     // await dai.approve(depositHandlerAddress, amount, { nonce: 61 });
@@ -47,8 +46,6 @@ describe("Gro Bridge Swapper", function() {
     // return;
 
     const amount = ethers.utils.parseEther("0.3");
-    // await gvt.transfer(swapper.address, amount);
-    // return
 
     console.log(`gvt balance is ${ethers.utils.formatEther(await gvt.balanceOf(swapper.address))}`);
     console.log(`amount is      ${ethers.utils.formatEther(amount)}`);
