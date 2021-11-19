@@ -60,7 +60,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         }
     }
 
-    function swapEthForYvCrv(uint256 _amountIn) public payable returns (uint256) {
+    function swapEthForYvCrv(uint256 _amountIn) internal returns (uint256) {
         // ETH -> crvStETH
         uint256 minLpAmount = getMinAmountOut((1 ether * _amountIn) / stEthPool.get_virtual_price());
         uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], minLpAmount);
@@ -70,7 +70,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         return IYearnVault(yvCrvStEth).deposit(crvStEthAmount);
     }
 
-    function swapYvCrvForEth(uint256 _amountIn) public returns (uint256) {
+    function swapYvCrvForEth(uint256 _amountIn) internal returns (uint256) {
         // yvCrvStETH -> crvStETH
         uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
 
