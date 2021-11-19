@@ -1,5 +1,6 @@
 {
   "zkSync": "0xabea9132b05a70803a4e85094fd0e1800777fbef",
+  "zkSyncTokenGovernance": "0x5140Cc54Bb876aBE1ba67d15AC66Ad2D42FDf46A",
   "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
   "curve-stETH-pool": "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",
   "yearn-crvStETH-vault": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",

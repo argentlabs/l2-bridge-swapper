@@ -24,12 +24,12 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "max fee" 
     // function depositERC20(IERC20 _token, uint104 _amount, address _zkSyncAddress) external;
 
 
-    const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f";
-    const usdcAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-    const l2Account = "0xcf1c324547834c1c2921b757e9ec84e50c52e5cc";
+    const yvDai = await ethers.getContractAt("IYearnVault", config.yvDai);
+    const yvUsdc = await ethers.getContractAt("IYearnVault", config.yvUsdc);
+    const dai = await ethers.getContractAt("IERC20", await yvDai.token());
+    const usdc = await ethers.getContractAt("IERC20", await yvUsdc.token());
 
-    const dai = await ethers.getContractAt("IERC20", daiAddress);
-    const usdc = await ethers.getContractAt("IERC20", usdcAddress);
+    const l2Account = config.argent["yearn-l2-account"];
 
     const daiAmount = ethers.utils.parseEther("1000");
     // const daiAmount = BigNumber.from(2).pow(252);
@@ -45,16 +45,16 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "max fee" 
     let tx, estimation;
     // tx = await dai.approve(config.zkSync, daiAmount, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`dai approve hash ${tx.hash}`);
-    // estimation = await zkSync.estimateGas.depositERC20(daiAddress, daiAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
+    // estimation = await zkSync.estimateGas.depositERC20(dai.address, daiAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`gas estimation ${estimation}`);
-    tx = await zkSync.depositERC20(daiAddress, daiAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
+    tx = await zkSync.depositERC20(dai.address, daiAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
     console.log(`hash ${tx.hash}`);
 
     // tx = await usdc.approve(config.zkSync, usdcAmount, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`usdc approve hash ${tx.hash}`);
-    // estimation = await zkSync.estimateGas.depositERC20(usdcAddress, usdcAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
+    // estimation = await zkSync.estimateGas.depositERC20(usdc.address, usdcAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`gas estimation ${estimation}`);
-    tx = await zkSync.depositERC20(usdcAddress, usdcAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
+    tx = await zkSync.depositERC20(usdc.address, usdcAmount, l2Account, { maxFeePerGas, maxPriorityFeePerGas });
     console.log(`hash ${tx.hash}`);
     return;
 
@@ -63,7 +63,6 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "max fee" 
     // IZkSync(zkSync).depositETH{value: _amountOut}(l2Account);
     
 
-    // const l2Account = "0xd9bc104c9200534ef2158570cb9eed079fc3cb4d";
     // const amount = ethers.utils.parseEther("0.05");
     // const estimation = await zkSync.estimateGas.depositETH(l2Account, { value: amount, maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`gas estimation ${estimation}`);

@@ -14,8 +14,7 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "priorit
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Signer ETH balance is: ${ethers.utils.formatEther(balance)}`);
 
-    const Swapper = await ethers.getContractFactory("LidoBridgeSwapper");
-    const swapper = Swapper.attach(config.argent["lido-swapper"]);
+    const swapper = await ethers.getContractAt("LidoBridgeSwapper", config.argent["lido-swapper"]);
 
     // const amount = ethers.utils.parseEther("0.0001");
     const amount = await ethers.provider.getBalance(swapper.address);

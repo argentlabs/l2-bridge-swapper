@@ -24,19 +24,17 @@ const stealDai = async (dai, to, amount) => {
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Signer ETH balance is: ${ethers.utils.formatEther(balance)}`);
 
-    const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-    const zkSyncTokenGovernanceAddress = "0x5140Cc54Bb876aBE1ba67d15AC66Ad2D42FDf46A";
-
-    const dai = await ethers.getContractAt("IERC20", daiAddress);
+    const yvDai = await ethers.getContractAt("IYearnVault", config.yvDai);
+    const dai = await ethers.getContractAt("IERC20", await yvDai.token());
 
     console.log(`DAI balance ${ethers.utils.formatEther(await dai.balanceOf(signer.address))}`)
     // await stealDai(dai, signer.address, ethers.utils.parseEther("100"));
     // console.log(`DAI balance ${ethers.utils.formatEther(await dai.balanceOf(signer.address))}`)
 
     // const daiAmount = ethers.utils.parseEther("300");
-    // let estimation = await dai.estimateGas.approve(zkSyncTokenGovernanceAddress, daiAmount, { maxFeePerGas, maxPriorityFeePerGas });
+    // let estimation = await dai.estimateGas.approve(config.zkSyncTokenGovernance, daiAmount, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`approve gas estimation ${estimation}`);
-    // let tx = await dai.approve(zkSyncTokenGovernanceAddress, daiAmount, { nonce: 8, maxFeePerGas, maxPriorityFeePerGas });
+    // let tx = await dai.approve(config.zkSyncTokenGovernance, daiAmount, { nonce: 8, maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`tx ${tx.hash}`);
 
     const tokens = [
@@ -51,7 +49,7 @@ const stealDai = async (dai, to, amount) => {
     const token = tokens[i];
 
     const abi = ["function addToken(address _token) external"];
-    const contract = new ethers.Contract(zkSyncTokenGovernanceAddress, abi, signer);
+    const contract = new ethers.Contract(config.zkSyncTokenGovernance, abi, signer);
 
     // estimation = await contract.estimateGas.addToken(token, { maxFeePerGas, maxPriorityFeePerGas });
     // console.log(`addToken gas estimation ${estimation}`);
