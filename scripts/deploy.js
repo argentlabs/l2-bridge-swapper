@@ -12,7 +12,7 @@ const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + prio
 const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
 const gasOptions = { maxFeePerGas, maxPriorityFeePerGas };
 
-async function deploySwapper({contractName, configKey, args, options = {}}) {
+async function deploySwapper({ contractName, configKey, args, options = {} }) {
   args.forEach((arg, index) => {
     if (typeof arg === "undefined") {
       throw new Error(`Argument #${index + 1} for ${contractName} is undefined, missing config key? Config is: ${JSON.stringify(config)}`);
