@@ -4,6 +4,9 @@ const ConfigLoader = require("./utils/configurator-loader.js");
 const { ethers } = hre;
 const config = new ConfigLoader(hre.network.name).load();
 
+const maxFeePerGas = ethers.utils.parseUnits("110", "gwei"); // "base fee + priority fee" on blocknative
+const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "priority fee" on blocknative
+
 (async () => {
   try {
     const signer = await ethers.getSigner();
@@ -11,16 +14,18 @@ const config = new ConfigLoader(hre.network.name).load();
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Signer ETH balance is: ${ethers.utils.formatEther(balance)}`);
 
-    const Swapper = await ethers.getContractFactory("BoostedEthBridgeSwapper");
-    const swapper = Swapper.attach(config.argent["boosted-eth-swapper"]);
-    const amount = ethers.utils.parseEther("0.01");
+    const swapper = await ethers.getContractAt("LidoBridgeSwapper", config.argent["lido-swapper"]);
 
-    const tx = await swapper.exchange(0, 1, amount, { gasLimit: 1_000_000 });
+    // const amount = ethers.utils.parseEther("0.0001");
+    const amount = await ethers.provider.getBalance(swapper.address);
+    console.log(`Swapper ETH balance is: ${ethers.utils.formatEther(amount)}`);
+
+    const estimation = await swapper.estimateGas.exchange(0, 1, amount, { maxFeePerGas, maxPriorityFeePerGas });
+    console.log(`gas estimation ${estimation}`);
+
+    const tx = await swapper.exchange(0, 1, amount, { maxFeePerGas, maxPriorityFeePerGas });
     console.log(`tx is ${tx.hash}`);
-    await tx.wait();
 
-    console.log(`done`);
-    console.log(`receipt is ${tx.receipt}`);
   } catch (error) {
     console.error(error);
     process.exit(1);

@@ -8,7 +8,11 @@ const { ethers } = hre;
 const configLoader = new ConfigLoader(hre.network.name);
 const config = configLoader.load();
 
-async function deploySwapper({contractName, configKey, args, options = {}}) {
+const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + priority fee" on blocknative
+const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
+const gasOptions = { maxFeePerGas, maxPriorityFeePerGas };
+
+async function deploySwapper({ contractName, configKey, args, options = {} }) {
   args.forEach((arg, index) => {
     if (typeof arg === "undefined") {
       throw new Error(`Argument #${index + 1} for ${contractName} is undefined, missing config key? Config is: ${JSON.stringify(config)}`);
@@ -18,7 +22,8 @@ async function deploySwapper({contractName, configKey, args, options = {}}) {
   const Swapper = await ethers.getContractFactory(contractName);
   const swapper = await Swapper.deploy(...args, options);
   console.log(`Deploying ${contractName} to:`, swapper.address);
-  await swapper.deployed();
+  const tx = await swapper.deployed();
+  console.log(`Deployment tx ${tx.hash}`);
 
   config.argent[configKey] = swapper.address;
   configLoader.save(config);
@@ -43,6 +48,7 @@ const deployLido = async () => (
       config.argent["lido-referral"]
     ],
     configKey: "lido-swapper",
+    options: gasOptions,
   })
 );
 
@@ -52,10 +58,14 @@ const deployYearn = async () => (
     args: [
       config.zkSync,
       config.argent["yearn-l2-account"],
-      [config.yvDai],
+      [
+        config.yvDai,
+        config.yvUsdc,
+        config.yvWBtc,
+      ],
     ],
     configKey: "yearn-swapper",
-    options: { gasLimit: 2_000_000 },
+    options: gasOptions,
   })
 );
 
@@ -69,23 +79,31 @@ const deployBoostedEth = async () => (
       config["curve-stETH-pool"],
       config.argent["lido-referral"],
     ],
-    configKey: "boosted-eth-swapper"
+    configKey: "boosted-eth-swapper",
+    options: gasOptions,
   })
 );
 
-const deployGroGvt = async (stablecoinIndex = 0) => (
+const deployGroGvt = async (stablecoin) => {
+  const stablecoins = ["dai", "usdc", "usdt"];
+  const index = stablecoins.indexOf(stablecoin);
+  if (index < 0) {
+    throw new Error("Invalid stablecoin");
+  }
+
   deploySwapper({
     contractName: "GroGvtBridgeSwapper", 
     args: [
       config.zkSync,
-      config.argent["gro-l2-account"],
+      config.argent[`gro-${stablecoin}-l2-account`],
       config["gro-controller"],
-      stablecoinIndex,
+      index,
       config.argent["gro-referral"],
     ],
-    configKey: "gro-swapper"
-  })
-);
+    configKey: `gro-${stablecoin}-swapper`,
+    options: gasOptions,
+  });
+};
 
 module.exports = { 
   deployLido,
@@ -96,9 +114,10 @@ module.exports = {
 
 (async () => {
   try {
-    const signer = await ethers.getSigner();
+    const [signer] = await ethers.getSigners();
+    console.log(`Signer is ${signer.address}`);
     const balance = await ethers.provider.getBalance(signer.address);
-    console.log(`Deployer ETH balance: ${ethers.utils.formatEther(balance)}`);
+    console.log(`Signer ETH balance: ${ethers.utils.formatEther(balance)}`);
 
     const minimumBalance = ethers.utils.parseEther("0.2");
     if (balance.lt(minimumBalance)) {
@@ -108,7 +127,8 @@ module.exports = {
     // await deployLido();
     // await deployYearn();
     // await deployBoostedEth();
-    // await deployGro();
+    // await deployGroGvt("dai");
+    // await deployGroGvt("usdc");
 
   } catch (error) {
     console.error(error);

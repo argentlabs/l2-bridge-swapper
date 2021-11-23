@@ -1,20 +1,25 @@
 {
   "zkSync": "0x3A49F0f4cf80992976625e1af168F31a12aB5004",
+  "zkSyncTokenGovernance": "0xf9e2852be8d100684debb796e39dd693756c8caa",
   "wstETH": "0x3FD7Bf4b341B724D3714dd562B47E49c089e0701",
   "curve-stETH-pool": "0x6b04cc073C2c9eE745629D7Bb5A0b6329235D955",
   "yearn-crvStETH-vault": "0x4EC441e153047Fd13ae26eC527Abecf871eA6A3d",
   "yvDai": "0x6caa902BFAC03F49d857e3BF05EfFC4D181f4d39",
+  "yvUsdc": "0x6caa902BFAC03F49d857e3BF05EfFC4D181f4d39",
+  "yvWBtc": "0x6caa902BFAC03F49d857e3BF05EfFC4D181f4d39",
   "gro-controller": "0x8A59743BBC178063BE23603B39059e1DFE9edD22",
   "argent": {
-    "lido-referral": "0x0000000000000000000000000000000000000000",
     "lido-swapper": "0x639fbA9620406930459e03a86f3E6137b74F84A1",
     "lido-l2-account": "0x17bab27446469c053729c08722377b07ffe45859",
+    "lido-referral": "0x0000000000000000000000000000000000000000",
     "yearn-swapper": "0x26D125B4768eD0d08B306C9D958DCb7DF6FA2105",
     "yearn-l2-account": "0xf548a91d30e5404b56a590d3bb3abedb6232da79",
     "boosted-eth-swapper": "0xc553E9A518B256a85EDe6d49983aA14B3cd2Ec97",
     "boosted-eth-l2-account": "0x2234b8b5443e96fbc82c4e87ceb38e7194c5e2a3",
-    "gro-l2-account": "0xaabbad66aafc93fccc8729006bf4f14f4fe882ca",
-    "gro-referral": "0x0000000000000000000000000000000000000000",
-    "gro-swapper": "0x0bBE48AFc38416503ecAD653f0c965445216A5a7"
+    "gro-dai-swapper": "0x0bBE48AFc38416503ecAD653f0c965445216A5a7",
+    "gro-dai-l2-account": "0xaabbad66aafc93fccc8729006bf4f14f4fe882ca",
+    "gro-usdc-swapper": "0x6dc53f35bc3f2a898aB2B380C554767b464C279a",
+    "gro-usdc-l2-account": "0x4b93974660d038b839976b02dc676034650b952f",
+    "gro-referral": "0x0000000000000000000000000000000000000000"
   }
 }
