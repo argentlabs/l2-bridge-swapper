@@ -8,6 +8,8 @@
   "yvUsdc": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
   "yvWBtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
   "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
+  "stataDai": "0x02d60b84491589974263d922D9cC7a3152618Ef6",
+  "stataUsdc": "0xd093fA4Fb80D09bB30817FDcd442d4d02eD3E5de",
   "argent": {
     "lido-swapper": "0xd222a83D4dD5bAD5ed5e9430C99661df4c3483Da",
     "lido-l2-account": "0x4d4c6545c17396bdfb7c635ca5c5361d00335aa2",
