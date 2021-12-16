@@ -3,7 +3,6 @@ pragma solidity ^0.8.3;
 
 import "./ZkSyncBridgeSwapper.sol";
 import "./interfaces/IStaticATokenLM.sol";
-// import { IStaticATokenLM } from "@aave/protocol-v2/contracts/interfaces/IStaticATokenLM.sol";
 
 /**
 * @notice Exchanges tokens for their respective static Aave tokens.
