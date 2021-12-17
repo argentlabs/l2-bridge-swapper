@@ -8,6 +8,8 @@
   "yvUsdc": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
   "yvWBtc": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
   "gro-controller": "0xCC5c60A319D33810b9EaB9764717EeF84deFB8F4",
+  "stataDai": "0x02d60b84491589974263d922D9cC7a3152618Ef6",
+  "stataUsdc": "0xd093fA4Fb80D09bB30817FDcd442d4d02eD3E5de",
   "argent": {
     "lido-swapper": "0x935E9465B8582b089e0D9CDacb52f92A1ADfA8E1",
     "lido-l2-account": "0xd9bc104c9200534ef2158570cb9eed079fc3cb4d",
@@ -20,6 +22,7 @@
     "gro-dai-l2-account": "0xfe47df382fe1f4e64b805fdf8a4de0c07bacdfb0",
     "gro-usdc-swapper": "0x5093E5080c89A247Bd9296f4638Ed94d78c76341",
     "gro-usdc-l2-account": "0x59337e7eaff88de66c50fd2f76b02ed69eccdb60",
-    "gro-referral": "0x0000000000000000000000000000000000000000"
+    "gro-referral": "0x0000000000000000000000000000000000000000",
+    "aave-l2-account": "0xc947543144e433c41459b09a765572ee0bf9033e"
   }
 }
