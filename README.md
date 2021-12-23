@@ -14,13 +14,17 @@ The target L2 is zkSync v1.0.
 
 The following DeFi tokens pairs are currently supported:
 
-- stETH / ETH using Lido Finance
+- stETH (wrapped) / ETH using Lido Finance
 - yvUSDC / USDC using Yearn
 - yvDAI / DAI using Yearn
 - yvWBTC / WBTC using Yearn
 - yvCrvStETH / ETH using Yearn
 - GVT / DAI using Gro Protocol
 - GVT / USDC using Gro Protocol
+- aDAI (wrapped) / DAI using Aave
+- aUSDC (wrapped) / USDC using Aave
+
+The wrapped versions are non-rebasing representations of the tokens.
 
 ## Specification
 
