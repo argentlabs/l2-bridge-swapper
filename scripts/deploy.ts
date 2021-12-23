@@ -46,7 +46,7 @@ const deploySwapper = async ({ contractName, configKey, args, options }: DeployO
   return swapper;
 }
 
-const deployLido = async () => (
+const deployLido = () => (
   deploySwapper({
     contractName: "LidoBridgeSwapper", 
     args: [
@@ -60,7 +60,7 @@ const deployLido = async () => (
   })
 );
 
-const deployYearn = async () => (
+const deployYearn = () => (
   deploySwapper({
     contractName: "YearnBridgeSwapper", 
     args: [
@@ -76,7 +76,7 @@ const deployYearn = async () => (
   })
 );
 
-const deployBoostedEth = async () => (
+const deployBoostedEth = () => (
   deploySwapper({
     contractName: "BoostedEthBridgeSwapper", 
     args: [
@@ -110,7 +110,7 @@ const deployGroGvt = async (stablecoin: "dai" | "usdc" | "usdt") => {
   });
 };
 
-export const deployAave = async () => (
+export const deployAave = () => (
   deploySwapper({
     contractName: "AaveBridgeSwapper", 
     args: [
@@ -143,7 +143,7 @@ module.exports = {
     const balance = await ethers.provider.getBalance(signer.address);
     console.log(`Signer is ${signer.address} holding ETH ${ethers.utils.formatEther(balance)}`);
 
-    const minimumBalance = ethers.utils.parseEther("0.2");
+    const minimumBalance = ethers.utils.parseEther("0.1");
     if (balance.lt(minimumBalance)) {
       throw new Error("Not enough ETH, exiting");
     }

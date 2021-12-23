@@ -22,6 +22,8 @@
     "gro-dai-l2-account": "0xe4c0297ba4722d702a19cf0ab95b24658e8ad7d3",
     "gro-usdc-swapper": "0xc4ee479d51bE8081bEF6Da8F90078d6a8f618d70",
     "gro-usdc-l2-account": "0x49be86d32fcb8fceec21fbe627e98424e1f59b1c",
-    "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31"
+    "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31",
+    "aave-l2-account": "0x10898aadc80fce8ba76b4cbc392e17cb9c976738",
+    "aave-swapper": "0x3463375ad6e47F690BeB1F99F656Fe3EC37b2836"
   }
 }
