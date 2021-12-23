@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/types";
-import "@nomiclabs/hardhat-etherscan";
+import '@typechain/hardhat';
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
 import "@rumblefishdev/hardhat-kms-signer";
 import dotenv from "dotenv";
 
@@ -49,6 +51,9 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  mocha: {
+    timeout: 1000000
   },
 };
 

@@ -1,10 +1,11 @@
-const hre = require("hardhat");
+import { Overrides } from "ethers";
+import hre, { ethers } from "hardhat";
+
 const ConfigLoader = require("./utils/configurator-loader.js");
 if (hre.network.name !== "hardhat") {
   require("@nomiclabs/hardhat-etherscan");
 }
 
-const { ethers } = hre;
 const configLoader = new ConfigLoader(hre.network.name);
 const config = configLoader.load();
 
@@ -12,12 +13,20 @@ const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + prio
 const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
 const gasOptions = { maxFeePerGas, maxPriorityFeePerGas };
 
-async function deploySwapper({ contractName, configKey, args, options = {} }) {
+interface DeployOptions {
+  contractName: string;
+  configKey: string;
+  args: any[];
+  options?: Overrides;
+}
+
+const deploySwapper = async ({ contractName, configKey, args, options }: DeployOptions) => {
   args.forEach((arg, index) => {
     if (typeof arg === "undefined") {
       throw new Error(`Argument #${index + 1} for ${contractName} is undefined, missing config key? Config is: ${JSON.stringify(config)}`);
     }
   });
+  options = { ...gasOptions, ...options };
 
   const Swapper = await ethers.getContractFactory(contractName);
   const swapper = await Swapper.deploy(...args, options);
@@ -37,7 +46,7 @@ async function deploySwapper({ contractName, configKey, args, options = {} }) {
   return swapper;
 }
 
-const deployLido = async () => (
+const deployLido = () => (
   deploySwapper({
     contractName: "LidoBridgeSwapper", 
     args: [
@@ -48,11 +57,10 @@ const deployLido = async () => (
       config.argent["lido-referral"]
     ],
     configKey: "lido-swapper",
-    options: gasOptions,
   })
 );
 
-const deployYearn = async () => (
+const deployYearn = () => (
   deploySwapper({
     contractName: "YearnBridgeSwapper", 
     args: [
@@ -65,11 +73,10 @@ const deployYearn = async () => (
       ],
     ],
     configKey: "yearn-swapper",
-    options: gasOptions,
   })
 );
 
-const deployBoostedEth = async () => (
+const deployBoostedEth = () => (
   deploySwapper({
     contractName: "BoostedEthBridgeSwapper", 
     args: [
@@ -80,11 +87,10 @@ const deployBoostedEth = async () => (
       config.argent["lido-referral"],
     ],
     configKey: "boosted-eth-swapper",
-    options: gasOptions,
   })
 );
 
-const deployGroGvt = async (stablecoin) => {
+const deployGroGvt = async (stablecoin: "dai" | "usdc" | "usdt") => {
   const stablecoins = ["dai", "usdc", "usdt"];
   const index = stablecoins.indexOf(stablecoin);
   if (index < 0) {
@@ -101,25 +107,43 @@ const deployGroGvt = async (stablecoin) => {
       config.argent["gro-referral"],
     ],
     configKey: `gro-${stablecoin}-swapper`,
-    options: gasOptions,
   });
 };
+
+export const deployAave = () => (
+  deploySwapper({
+    contractName: "AaveBridgeSwapper", 
+    args: [
+      config.zkSync,
+      config.argent["aave-l2-account"],
+      [
+        config.stataDai,
+        config.stataUsdc,
+      ],
+    ],
+    configKey: "aave-swapper",
+  })
+);
 
 module.exports = { 
   deployLido,
   deployYearn,
   deployBoostedEth,
   deployGroGvt,
+  deployAave,
 };
 
 (async () => {
+  if (require.main !== module) {
+    return;
+  }
+
   try {
     const [signer] = await ethers.getSigners();
-    console.log(`Signer is ${signer.address}`);
     const balance = await ethers.provider.getBalance(signer.address);
-    console.log(`Signer ETH balance: ${ethers.utils.formatEther(balance)}`);
+    console.log(`Signer is ${signer.address} holding ETH ${ethers.utils.formatEther(balance)}`);
 
-    const minimumBalance = ethers.utils.parseEther("0.2");
+    const minimumBalance = ethers.utils.parseEther("0.1");
     if (balance.lt(minimumBalance)) {
       throw new Error("Not enough ETH, exiting");
     }
@@ -129,6 +153,7 @@ module.exports = {
     // await deployBoostedEth();
     // await deployGroGvt("dai");
     // await deployGroGvt("usdc");
+    // await deployAave();
 
   } catch (error) {
     console.error(error);
