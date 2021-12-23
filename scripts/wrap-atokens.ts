@@ -10,36 +10,21 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "priorit
 (async () => {
   try {
     const [signer] = await ethers.getSigners();
-    const balance = await ethers.provider.getBalance(signer.address);
-    console.log(`Signer is ${signer.address} holding ETH ${ethers.utils.formatEther(balance)}`);
+    const ethBalance = await ethers.provider.getBalance(signer.address);
+    console.log(`Signer is ${signer.address} holding ETH ${ethers.utils.formatEther(ethBalance)}`);
 
+    const stataToken = await ethers.getContractAt("IStaticATokenLM", config.stataUsdc);
+    const aToken = await ethers.getContractAt("IERC20", await stataToken.ATOKEN());
 
-    const stataDai = await ethers.getContractAt("IStaticATokenLM", config.stataDai);
-    const aDai = await ethers.getContractAt("IERC20", await stataDai.ATOKEN());
+    const balance = await aToken.balanceOf(signer.address);
+    const amount = await aToken.allowance(signer.address, stataToken.address);
+    console.log(`aToken balance ${ethers.utils.formatUnits(balance, 6)}`);
+    console.log(`aToken amount  ${ethers.utils.formatUnits(amount, 6)}`);
 
-    const aDaiBalance = await aDai.balanceOf(signer.address);
-    console.log(`aDAI balance ${ethers.utils.formatEther(aDaiBalance)}`)
-
-    console.log(`stataDAI balance ${ethers.utils.formatEther(await stataDai.balanceOf(signer.address))}`)
-    await aDai.approve(stataDai.address, aDaiBalance);
-    const aDaiAmount = ethers.utils.parseEther("1000");
-    await stataDai.deposit(signer.address, aDaiAmount, 0, false);
-    console.log(`stataDAI balance ${ethers.utils.formatEther(await stataDai.balanceOf(signer.address))}`)
-
-
-    const stataUsdc = await ethers.getContractAt("IStaticATokenLM", config.stataUsdc);
-    const aUsdc = await ethers.getContractAt("IERC20", await stataUsdc.ATOKEN());
-
-    const aUsdcBalance = await aUsdc.balanceOf(signer.address);
-    const aUsdcAmount = aUsdcBalance.sub(500);
-    console.log(`aUSDC balance ${ethers.utils.formatUnits(aUsdcBalance, 6)}`)
-    console.log(`aUSDC amount  ${ethers.utils.formatUnits(aUsdcAmount, 6)}`)
-
-    console.log(`stataUSDC balance ${ethers.utils.formatUnits(await stataUsdc.balanceOf(signer.address), 6)}`)
-    await aUsdc.approve(stataUsdc.address, aUsdcBalance);
-    await stataUsdc.deposit(signer.address, aUsdcAmount, 0, false);
-    console.log(`stataUSDC balance ${ethers.utils.formatUnits(await stataUsdc.balanceOf(signer.address), 6)}`)
-
+    console.log(`stataToken balance ${ethers.utils.formatUnits(await stataToken.balanceOf(signer.address), 6)}`);
+    await aToken.approve(stataToken.address, balance);
+    await stataToken.deposit(signer.address, amount, 0, false);
+    console.log(`stataToken balance ${ethers.utils.formatUnits(await stataToken.balanceOf(signer.address), 6)}`);
 
   } catch (error) {
     console.error(error);
