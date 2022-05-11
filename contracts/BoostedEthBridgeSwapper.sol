@@ -50,6 +50,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         uint256 _amountIn,
         uint256 _minAmountOut
     ) 
+        onlyOwner
         external 
         override 
         returns (uint256 amountOut) 
