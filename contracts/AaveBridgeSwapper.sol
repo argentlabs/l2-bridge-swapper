@@ -32,7 +32,17 @@ contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
         }
     }
 
-    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
+    function exchange(
+        uint256 _indexIn,
+        uint256 _indexOut,
+        uint256 _amountIn,
+        uint256 _minAmountOut
+    ) 
+        onlyOwner
+        external 
+        override 
+        returns (uint256 amountOut) 
+    {
         require(_indexIn < tokens.length, "invalid input index");
         require(_indexOut < tokens.length && _indexOut != _indexIn, "invalid output index");
 
@@ -61,6 +71,7 @@ contract AaveBridgeSwapper is ZkSyncBridgeSwapper {
             );
         }
 
+        require(amountOut >= _minAmountOut, "slippage");
         transferToZkSync(outputToken, amountOut);
         emit Swapped(inputToken, _amountIn, outputToken, amountOut);
     }

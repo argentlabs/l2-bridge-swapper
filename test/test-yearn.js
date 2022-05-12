@@ -61,7 +61,7 @@ describe("Yearn Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, yvDai.address, 0);
-    await zap.exchange(1, 0, amountIn);
+    await zap.exchange(1, 0, amountIn, 1);
     const depositedAfter = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
   });
@@ -70,7 +70,7 @@ describe("Yearn Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, yvDai.address, ethers.utils.parseEther("0.1"));
-    await zap.exchange(1, 0, amountIn);
+    await zap.exchange(1, 0, amountIn, 1);
     const depositedAfter = await zkSync.getDepositedERC20(dai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
     const balance = await zkSync.getPendingBalance(zap.address, yvDai.address);
@@ -79,14 +79,14 @@ describe("Yearn Bridge Swapper", function () {
 
   it("Should emit event when swapping yvDAI for DAI", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(1, 0, amountIn, 1)).to.emit(zap, "Swapped");
   });
 
   it("Should swap DAI for yvDAI when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, dai.address, 0);
-    await zap.exchange(0, 1, amountIn);
+    await zap.exchange(0, 1, amountIn, 1);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
   });
@@ -95,7 +95,7 @@ describe("Yearn Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const depositedBefore = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, dai.address, ethers.utils.parseEther("0.1"));
-    await zap.exchange(0, 1, amountIn);
+    await zap.exchange(0, 1, amountIn, 1);
     const depositedAfter = await zkSync.getDepositedERC20(yvDai.address, l2Account.address);
     expect(depositedAfter.sub(depositedBefore)).to.equal(amountIn);
     expect(await zkSync.getPendingBalance(zap.address, dai.address)).to.equal(0);
@@ -103,7 +103,7 @@ describe("Yearn Bridge Swapper", function () {
 
   it("Should emit event when swapping DAI for yvDAI", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 1, amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(0, 1, amountIn, 1)).to.emit(zap, "Swapped");
   });
 
   it("Should add a new vault with its underlying token", async function () {
@@ -119,26 +119,26 @@ describe("Yearn Bridge Swapper", function () {
 
   it("Should fail to swap 2 underlyings", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 2, amountIn)).to.be.revertedWith("invalid output token");
-    await expect(zap.exchange(2, 0, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(0, 2, amountIn, 1)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(2, 0, amountIn, 1)).to.be.revertedWith("invalid output token");
   });
 
   it("Should fail to swap 2 vault tokens", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(1, 3, amountIn)).to.be.revertedWith("invalid output token");
-    await expect(zap.exchange(3, 1, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(1, 3, amountIn, 1)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(3, 1, amountIn, 1)).to.be.revertedWith("invalid output token");
   });
 
   it("Should fail to swap an underlying with the wrong vault token", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 3, amountIn)).to.be.revertedWith("invalid output token");
-    await expect(zap.exchange(3, 0, amountIn)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(0, 3, amountIn, 1)).to.be.revertedWith("invalid output token");
+    await expect(zap.exchange(3, 0, amountIn, 1)).to.be.revertedWith("invalid output token");
   });
 
   it("Should fail to swap with identical indexes", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 0, amountIn)).to.be.revertedWith("invalid output index");
-    await expect(zap.exchange(1, 1, amountIn)).to.be.revertedWith("invalid output index");
-    await expect(zap.exchange(2, 2, amountIn)).to.be.revertedWith("invalid output index");
+    await expect(zap.exchange(0, 0, amountIn, 1)).to.be.revertedWith("invalid output index");
+    await expect(zap.exchange(1, 1, amountIn, 1)).to.be.revertedWith("invalid output index");
+    await expect(zap.exchange(2, 2, amountIn, 1)).to.be.revertedWith("invalid output index");
   });
 });

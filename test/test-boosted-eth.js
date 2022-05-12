@@ -69,7 +69,7 @@ describe("Boosted ETH Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
     await zkSync.setPendingBalance(zap.address, yvCrvStEth.address, 0);
-    await zap.exchange(1, 0, amountIn);
+    await zap.exchange(1, 0, amountIn, 1);
     const ethDepositedAfter = await zkSync.getDepositedETH(l2Account.address);
     expect(ethDepositedAfter.sub(ethDepositedBefore)).to.equal(amountIn);
   });
@@ -78,7 +78,7 @@ describe("Boosted ETH Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const ethDepositedBefore = await zkSync.getDepositedETH(l2Account.address);
     await zkSync.setPendingBalance(zap.address, yvCrvStEth.address, ethers.utils.parseEther("0.1"));
-    await zap.exchange(1, 0, amountIn);
+    await zap.exchange(1, 0, amountIn, 1);
     const ethDepositedAfter = await zkSync.getDepositedETH(l2Account.address);
     expect(ethDepositedAfter.sub(ethDepositedBefore)).to.equal(amountIn);
     expect(await zkSync.getPendingBalance(zap.address, yvCrvStEth.address)).to.equal(0);
@@ -86,14 +86,14 @@ describe("Boosted ETH Bridge Swapper", function () {
 
   it("Should emit event when swapping yvCrvStEth for ETH", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(1, 0, amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(1, 0, amountIn, 1)).to.emit(zap, "Swapped");
   });
 
   it("Should swap ETH for yvCrvStETH when there is no pending balance", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(yvCrvStEth.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, ethers.constants.AddressZero, 0);
-    await zap.exchange(0, 1, amountIn);
+    await zap.exchange(0, 1, amountIn, 1);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(yvCrvStEth.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
   });
@@ -102,7 +102,7 @@ describe("Boosted ETH Bridge Swapper", function () {
     const amountIn = ethers.utils.parseEther("0.5");
     const tokenDepositedBefore = await zkSync.getDepositedERC20(yvCrvStEth.address, l2Account.address);
     await zkSync.setPendingBalance(zap.address, ethers.constants.AddressZero, ethers.utils.parseEther("0.1"));
-    await zap.exchange(0, 1, amountIn);
+    await zap.exchange(0, 1, amountIn, 1);
     const tokenDepositedAfter = await zkSync.getDepositedERC20(yvCrvStEth.address, l2Account.address);
     expect(tokenDepositedAfter.sub(tokenDepositedBefore)).to.equal(amountIn);
     expect(await zkSync.getPendingBalance(zap.address, ethers.constants.AddressZero)).to.equal(0);
@@ -110,6 +110,6 @@ describe("Boosted ETH Bridge Swapper", function () {
 
   it("Should emit event when swapping ETH for yvCrvStEth", async function () {
     const amountIn = ethers.utils.parseEther("0.5");
-    await expect(zap.exchange(0, 1, amountIn)).to.emit(zap, "Swapped");
+    await expect(zap.exchange(0, 1, amountIn, 1)).to.emit(zap, "Swapped");
   });
 });

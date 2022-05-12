@@ -47,17 +47,29 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         groReferral = _groReferral;
     }
 
-    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
+    function exchange(
+        uint256 _indexIn,
+        uint256 _indexOut,
+        uint256 _amountIn,
+        uint256 _minAmountOut
+    ) 
+        onlyOwner
+        external 
+        override 
+        returns (uint256 amountOut) 
+    {
         require(_indexIn + _indexOut == 1, "invalid indexes");
 
         if (_indexIn == 0) {
             transferFromZkSync(stablecoin);
             amountOut = swapStablecoinForGvt(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(gvt, amountOut);
             emit Swapped(stablecoin, _amountIn, gvt, amountOut);
         } else {
             transferFromZkSync(gvt);
             amountOut = swapGvtForStablecoin(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(stablecoin, amountOut);
             emit Swapped(gvt, _amountIn, stablecoin, amountOut);
         }
@@ -69,8 +81,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         uint256 balanceBefore = IGroToken(gvt).balanceOf(address(this));
 
         IERC20(stablecoin).approve(depositHandler, _amountIn);
-        uint256 minLpAmount = getMinAmountOut(IGroBuoy(buoy).stableToLp(inAmounts, true));
-        IGroDepositHandler(depositHandler).depositGvt(inAmounts, minLpAmount, groReferral);
+        IGroDepositHandler(depositHandler).depositGvt(inAmounts, 1, groReferral);
 
         uint256 balanceAfter = IGroToken(gvt).balanceOf(address(this));
         return balanceAfter - balanceBefore;
@@ -81,9 +92,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
 
         uint256 usdAmount = IGroToken(gvt).getShareAssets(_amountIn);
         uint256 lpAmount = IGroBuoy(buoy).usdToLp(usdAmount);
-        uint256 stableAmount = IGroBuoy(buoy).singleStableFromUsd(usdAmount, int128(uint128(stablecoinIndex)));
-        uint256 minAmount = getMinAmountOut(stableAmount);
-        IGroWithdrawHandler(withdrawHandler).withdrawByStablecoin(false, stablecoinIndex, lpAmount, minAmount);
+        IGroWithdrawHandler(withdrawHandler).withdrawByStablecoin(false, stablecoinIndex, lpAmount, 1);
 
         uint256 balanceAfter = IERC20(stablecoin).balanceOf(address(this));
         return balanceAfter - balanceBefore;
