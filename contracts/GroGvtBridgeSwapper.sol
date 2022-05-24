@@ -75,7 +75,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         }
     }
 
-    function swapStablecoinForGvt(uint256 _amountIn) public returns (uint256) {
+    function swapStablecoinForGvt(uint256 _amountIn) private returns (uint256) {
         uint256[3] memory inAmounts;
         inAmounts[stablecoinIndex] = _amountIn;
         uint256 balanceBefore = IGroToken(gvt).balanceOf(address(this));
@@ -87,7 +87,7 @@ contract GroGvtBridgeSwapper is ZkSyncBridgeSwapper {
         return balanceAfter - balanceBefore;
     }
 
-    function swapGvtForStablecoin(uint256 _amountIn) public returns (uint256) {
+    function swapGvtForStablecoin(uint256 _amountIn) private returns (uint256) {
         uint256 balanceBefore = IERC20(stablecoin).balanceOf(address(this));
 
         uint256 usdAmount = IGroToken(gvt).getShareAssets(_amountIn);
