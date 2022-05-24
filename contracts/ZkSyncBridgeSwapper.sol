@@ -9,8 +9,6 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
 
     // The owner of the contract
     address public owner;
-    // The max slippage accepted for swapping. Defaults to 1% with 6 decimals.
-    uint256 public slippagePercent = 1e6;
 
     // The ZkSync bridge contract
     address public immutable zkSync;
@@ -37,12 +35,6 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
         require(_newOwner != address(0), "invalid input");
         owner = _newOwner;
         emit OwnerChanged(owner, _newOwner);
-    }
-
-    function changeSlippage(uint256 _slippagePercent) external onlyOwner {
-        require(_slippagePercent != slippagePercent && _slippagePercent <= 100e6, "invalid slippage");
-        slippagePercent = _slippagePercent;
-        emit SlippageChanged(slippagePercent);
     }
 
     /**
@@ -94,13 +86,6 @@ abstract contract ZkSyncBridgeSwapper is IBridgeSwapper {
      */
     receive() external payable {
         
-    }
-
-    /**
-     * @dev Returns the minimum accepted out amount.
-     */
-    function getMinAmountOut(uint256 _amountIn) internal view returns (uint256) {
-        return _amountIn * (100e6 - slippagePercent) / 100e6;
     }
 
     /**

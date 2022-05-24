@@ -62,7 +62,7 @@ describe("Aave Bridge Swapper", () => {
     const daiBefore = await dai.balanceOf(swapper.address);
     const stataDaiBefore = await stataDai.balanceOf(zkSync.address);
 
-    await swapper.exchange(0, 1, daiBefore);
+    await swapper.exchange(0, 1, daiBefore, 1);
 
     const daiAfter = await dai.balanceOf(swapper.address);
     const stataDaiAfter = await stataDai.balanceOf(zkSync.address);
@@ -78,7 +78,7 @@ describe("Aave Bridge Swapper", () => {
     const daiBefore = await dai.balanceOf(zkSync.address);
     const stataDaiBefore = await stataDai.balanceOf(swapper.address);
 
-    await swapper.exchange(1, 0, stataDaiBefore);
+    await swapper.exchange(1, 0, stataDaiBefore, 1);
 
     const daiAfter = await dai.balanceOf(zkSync.address);
     const stataDaiAfter = await stataDai.balanceOf(swapper.address);

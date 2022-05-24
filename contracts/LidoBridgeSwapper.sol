@@ -41,17 +41,29 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         lidoReferral = _lidoReferral;
     }
 
-    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
+    function exchange(
+        uint256 _indexIn,
+        uint256 _indexOut,
+        uint256 _amountIn,
+        uint256 _minAmountOut
+    ) 
+        onlyOwner
+        external 
+        override 
+        returns (uint256 amountOut) 
+    {
         require(_indexIn + _indexOut == 1, "invalid indexes");
 
         if (_indexIn == 0) {
             transferFromZkSync(ETH_TOKEN);
             amountOut = swapEthForStEth(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(wStEth, amountOut);
             emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
         } else {
             transferFromZkSync(wStEth);
             amountOut = swapStEthForEth(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(ETH_TOKEN, amountOut);
             emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
         }
@@ -83,6 +95,6 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         bool success = IERC20(stEth).approve(stEthPool, unwrapped);
         require(success, "approve failed");
         // swap stEth for ETH on Curve and return deposited amount
-        return ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
+        return ICurvePool(stEthPool).exchange(1, 0, unwrapped, 1);
     }
 }

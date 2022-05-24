@@ -44,17 +44,29 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         lidoReferral = _lidoReferral;
     }
 
-    function exchange(uint256 _indexIn, uint256 _indexOut, uint256 _amountIn) external override returns (uint256 amountOut) {
+    function exchange(
+        uint256 _indexIn,
+        uint256 _indexOut,
+        uint256 _amountIn,
+        uint256 _minAmountOut
+    ) 
+        onlyOwner
+        external 
+        override 
+        returns (uint256 amountOut) 
+    {
         require(_indexIn + _indexOut == 1, "invalid indexes");
 
         if (_indexIn == 0) {
             transferFromZkSync(ETH_TOKEN);
             amountOut = swapEthForYvCrv(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(yvCrvStEth, amountOut);
             emit Swapped(ETH_TOKEN, _amountIn, yvCrvStEth, amountOut);
         } else {
             transferFromZkSync(yvCrvStEth);
             amountOut = swapYvCrvForEth(_amountIn);
+            require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(ETH_TOKEN, amountOut);
             emit Swapped(yvCrvStEth, _amountIn, ETH_TOKEN, amountOut);
         }
@@ -62,8 +74,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
     function swapEthForYvCrv(uint256 _amountIn) internal returns (uint256) {
         // ETH -> crvStETH
-        uint256 minLpAmount = getMinAmountOut((1 ether * _amountIn) / stEthPool.get_virtual_price());
-        uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], minLpAmount);
+        uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], 1);
 
         // crvStETH -> yvCrvStETH
         IERC20(crvStEth).approve(yvCrvStEth, crvStEthAmount);
@@ -75,16 +86,17 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
 
         // crvStETH -> ETH
-        uint256 minAmountOut = getMinAmountOut((crvStEthAmount * stEthPool.get_virtual_price()) / 1 ether);
-        return stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, minAmountOut);
+        return stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, 1);
     }
 
-    function ethPerYvCrvStEth() public view returns (uint256) {
-        return IYearnVault(yvCrvStEth).pricePerShare() * stEthPool.get_virtual_price() / 1 ether;
+    function ethPerYvCrvStEth(uint256 _yvCrvStEthAmount) public view returns (uint256) {
+        uint256 crvStEthAmount = _yvCrvStEthAmount * IYearnVault(yvCrvStEth).pricePerShare() / 1 ether;
+        return stEthPool.calc_withdraw_one_coin(crvStEthAmount, 0);
     }
 
-    function yvCrvStEthPerEth() public view returns (uint256) {
-        return (1 ether ** 2) / ethPerYvCrvStEth();
+    function yvCrvStEthPerEth(uint256 _ethAmount) public view returns (uint256) {
+        uint256 crvStEthAmount = stEthPool.calc_token_amount([_ethAmount, 0], true);
+        return 1 ether * crvStEthAmount / IYearnVault(yvCrvStEth).pricePerShare();
     }
 
     function tokens(uint256 _index) external view returns (address) {
