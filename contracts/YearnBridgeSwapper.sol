@@ -46,12 +46,12 @@ contract YearnBridgeSwapper is ZkSyncBridgeSwapper {
         transferFromZkSync(inputToken);
 
         if (_indexIn % 2 == 0) { // deposit
-            require(outputToken == tokens[_indexIn + 1], "invalid output token");
+            require(_indexOut == _indexIn + 1, "invalid output token");
 
             IERC20(inputToken).approve(outputToken, _amountIn);
             amountOut = IYearnVault(outputToken).deposit(_amountIn);
         } else { // withdrawal
-            require(outputToken == tokens[_indexIn - 1], "invalid output token");
+            require(_indexOut == _indexIn - 1, "invalid output token");
 
             amountOut = IYearnVault(inputToken).withdraw(_amountIn);
         }
