@@ -75,7 +75,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         uint256 crvStEthAmount = IYearnVault(yvCrvStEth).withdraw(_amountIn);
 
         // crvStETH -> ETH
-        uint256 minAmountOut = getMinAmountOut((crvStEthAmount * stEthPool.get_virtual_price()) / 1 ether);
+        uint256 minAmountOut = getMinAmountOut(stEthPool.calc_withdraw_one_coin(crvStEthAmount, 0));
         return stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, minAmountOut);
     }
 

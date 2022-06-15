@@ -82,7 +82,8 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
         // approve pool
         bool success = IERC20(stEth).approve(stEthPool, unwrapped);
         require(success, "approve failed");
+        uint256 minAmountOut = getMinAmountOut(ICurvePool(stEthPool).get_dy(1, 0, unwrapped));
         // swap stEth for ETH on Curve and return deposited amount
-        return ICurvePool(stEthPool).exchange(1, 0, unwrapped, getMinAmountOut(unwrapped));
+        return ICurvePool(stEthPool).exchange(1, 0, unwrapped, minAmountOut);
     }
 }

@@ -47,4 +47,17 @@ contract CurvePoolMock is ICurvePool {
         require(success, "failed to send ETH");
         return _amount;
     }
+
+    function calc_withdraw_one_coin(uint256 /*_amount*/, int128 _i) external pure override returns (uint256) {
+        require(_i == 0, "withdraw ETH only");
+        return 1 ether;
+    }
+
+    function calc_token_amount(uint256[2] calldata /*_amounts*/, bool /*_isDeposit*/) external pure override returns (uint256) {
+        return 1 ether;
+    }
+
+    function get_dy(int128 /*_i*/, int128 /*_j*/, uint256 /*_dx*/) external pure override returns (uint256) {
+        return 0;
+    }
 }
