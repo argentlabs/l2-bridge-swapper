@@ -21,7 +21,7 @@ contract CurvePoolMock is ICurvePool {
     receive() external payable {}
 
     // exchanges stETH for ETH with a ration of 1:1
-    function exchange(int128 _i, int128 _j, uint256 _dx, uint256 _minDy) external override returns (uint256) {
+    function exchange(int128 _i, int128 _j, uint256 _dx, uint256 _minDy) external payable override returns (uint256) {
         require(_i == 1 && _j == 0, "invalid i,j parameters");
         require(_dx > _minDy, "dy too low");
         LidoMock(stETH).burn(msg.sender, _dx);
