@@ -62,7 +62,7 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
 
     function swapEthForYvCrv(uint256 _amountIn) internal returns (uint256) {
         // ETH -> crvStETH
-        uint256 minLpAmount = getMinAmountOut((1 ether * _amountIn) / stEthPool.get_virtual_price());
+        uint256 minLpAmount = getMinAmountOut(stEthPool.calc_token_amount([_amountIn, 0], true));
         uint256 crvStEthAmount = stEthPool.add_liquidity{value: _amountIn}([_amountIn, 0], minLpAmount);
 
         // crvStETH -> yvCrvStETH
