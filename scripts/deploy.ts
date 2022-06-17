@@ -150,7 +150,7 @@ module.exports = {
 
     // await deployLido();
     // await deployYearn();
-    // await deployBoostedEth();
+    await deployBoostedEth();
     // await deployGroGvt("dai");
     // await deployGroGvt("usdc");
     // await deployAave();

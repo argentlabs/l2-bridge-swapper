@@ -79,12 +79,26 @@ contract BoostedEthBridgeSwapper is ZkSyncBridgeSwapper {
         return stEthPool.remove_liquidity_one_coin(crvStEthAmount, 0, minAmountOut);
     }
 
+    // same interface as the mainnet contracts
+
     function ethPerYvCrvStEth() public view returns (uint256) {
-        return IYearnVault(yvCrvStEth).pricePerShare() * stEthPool.get_virtual_price() / 1 ether;
+        return ethPerYvCrvStEth(1 ether); 
     }
 
     function yvCrvStEthPerEth() public view returns (uint256) {
-        return (1 ether ** 2) / ethPerYvCrvStEth();
+        return yvCrvStEthPerEth(1 ether); 
+    }
+
+    // updated methods with different interfaces from the post-audit contracts, not yet on mainnet
+
+    function ethPerYvCrvStEth(uint256 _yvCrvStEthAmount) public view returns (uint256) {
+        uint256 crvStEthAmount = _yvCrvStEthAmount * IYearnVault(yvCrvStEth).pricePerShare() / 1 ether;
+        return stEthPool.calc_withdraw_one_coin(crvStEthAmount, 0);
+    }
+
+    function yvCrvStEthPerEth(uint256 _ethAmount) public view returns (uint256) {
+        uint256 crvStEthAmount = stEthPool.calc_token_amount([_ethAmount, 0], true);
+        return 1 ether * crvStEthAmount / IYearnVault(yvCrvStEth).pricePerShare();
     }
 
     function tokens(uint256 _index) external view returns (address) {
