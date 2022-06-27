@@ -75,8 +75,17 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * @param _amountIn The amount of ETH to swap.
     */
     function swapEthForStEth(uint256 _amountIn) internal returns (uint256) {
-        // swap Eth for stEth on the Lido contract
-        ILido(stEth).submit{value: _amountIn}(lidoReferral);
+        uint256 dy = ICurvePool(stEthPool).get_dy(0, 1, _amountIn);
+        uint256 amountOut;
+
+        // if stETH below parity on Curve get it there, otherwise stake on Lido contract
+        if (dy > _amountIn) {
+            amountOut = ICurvePool(stEthPool).exchange{value: _amountIn}(0, 1, _amountIn, 1);
+        } else {
+            ILido(stEth).submit{value: _amountIn}(lidoReferral);
+            amountOut = _amountIn;
+        }
+
         // approve the wStEth contract to take the stEth
         IERC20(stEth).approve(wStEth, _amountIn);
         // wrap to wStEth and return deposited amount
