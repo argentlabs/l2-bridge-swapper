@@ -17,7 +17,7 @@ const config: HardhatUserConfig = {
     },
     dev: {
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-      kmsKeyId: process.env.DEV_KMSID,
+      kmsKeyId: process.env.TEST_KMSID, // using the TEST key on the DEV env on purpose
       chainId: 4,
     },
     test: {

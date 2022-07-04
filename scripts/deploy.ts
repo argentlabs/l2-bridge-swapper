@@ -11,7 +11,8 @@ const config = configLoader.load();
 
 const maxFeePerGas = ethers.utils.parseUnits("100", "gwei"); // "base fee + priority fee" on blocknative
 const maxPriorityFeePerGas = ethers.utils.parseUnits("2", "gwei"); // "priority fee" on blocknative
-const gasOptions = { maxFeePerGas, maxPriorityFeePerGas };
+// const gasOptions = { maxFeePerGas, maxPriorityFeePerGas }; // if trying to save on gas
+const gasOptions = {};
 
 interface DeployOptions {
   contractName: string;
@@ -28,18 +29,22 @@ const deploySwapper = async ({ contractName, configKey, args, options }: DeployO
   });
   options = { ...gasOptions, ...options };
 
+  console.log(`Deploying ${contractName}...`);
   const Swapper = await ethers.getContractFactory(contractName);
   const swapper = await Swapper.deploy(...args, options);
-  console.log(`Deploying ${contractName} to:`, swapper.address);
-  const tx = await swapper.deployed();
-  console.log(`Deployment tx ${tx.hash}`);
+  console.log(`Pending at: ${swapper.address}`);
+  await swapper.deployed();
+  console.log(`Deployed with tx: ${swapper.deployTransaction.hash}`);
 
   config.argent[configKey] = swapper.address;
   configLoader.save(config);
 
+  await swapper.changeOwner(config.argent["owner"]);
+  console.log(`Changed owner to: ${config.argent["owner"]}`);
+
   if (hre.network.name !== "hardhat") {
-    console.log("Uploading code to Etherscan...");
-    await swapper.deployTransaction.wait(3);
+    console.log("Waiting to upload code to Etherscan...");
+    await swapper.deployTransaction.wait(5);
     await hre.run("verify:verify", { address: swapper.address, constructorArguments: args });
   }
 
@@ -153,7 +158,7 @@ module.exports = {
     // await deployBoostedEth();
     // await deployGroGvt("dai");
     // await deployGroGvt("usdc");
-    // await deployAave();
+    await deployAave();
 
   } catch (error) {
     console.error(error);

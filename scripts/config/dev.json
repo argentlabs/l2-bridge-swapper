@@ -6,6 +6,7 @@
   "yvUsdc": "0x1a2640bd6a507c90b226c0fec1cb6d54ea6e8961",
   "gro-controller": "",
   "argent": {
+    "owner": "0x0267482c3de8d6fe7555d5d1756176f7f90f116d",
     "lido-swapper": "0xe8992f8848097550F0fd1Ec7F7a343B711Ae10D2",
     "lido-l2-account": "0x7754e5b5c138f1dd366adb740298927e830a6ec0",
     "lido-referral": "0x0000000000000000000000000000000000000000",
