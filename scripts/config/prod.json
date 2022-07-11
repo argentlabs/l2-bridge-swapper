@@ -11,19 +11,20 @@
   "stataDai": "0x02d60b84491589974263d922D9cC7a3152618Ef6",
   "stataUsdc": "0xd093fA4Fb80D09bB30817FDcd442d4d02eD3E5de",
   "argent": {
-    "lido-swapper": "0xd222a83D4dD5bAD5ed5e9430C99661df4c3483Da",
+    "owner": "0xa1a1224e9071470ab12a8df7626d4fe7789a039d",
+    "lido-swapper": "0x349F02C1A4Fe499A33b68BBaAc5e3a718f706966",
     "lido-l2-account": "0x4d4c6545c17396bdfb7c635ca5c5361d00335aa2",
     "lido-referral": "0xef8e1b4b676a5285db79d55d3288bc5fe65c71cc",
-    "yearn-swapper": "0x257daC852356f18f3292a76881fbfeCc0db43e19",
+    "yearn-swapper": "0x8fF3B24225f13c301983909990cF10dAE8a33dA3",
     "yearn-l2-account": "0x0ec9b7ef4c071bbcc8ac47b79eba7646d4c1498a",
-    "boosted-eth-swapper": "0x1fe621c14bC204f7A1A54e427961AA22F80cC727",
+    "boosted-eth-swapper": "0xfF1EE01a816Dfb21e9f4db143C05B6a6cB80c07d",
     "boosted-eth-l2-account": "0xf92f4d924faf02d94f37bb886966fd2460f924fd",
-    "gro-dai-swapper": "0x06E36eF61C8957c294B80C70ba6090e1e0FD3711",
+    "gro-dai-swapper": "0x63A400C462a937aB9a3244651b87eF2aA1f6c03B",
     "gro-dai-l2-account": "0xe4c0297ba4722d702a19cf0ab95b24658e8ad7d3",
-    "gro-usdc-swapper": "0xc4ee479d51bE8081bEF6Da8F90078d6a8f618d70",
+    "gro-usdc-swapper": "0xCda131ed6F4937eFB481a5F0D1B3c76b6C9EE3dE",
     "gro-usdc-l2-account": "0x49be86d32fcb8fceec21fbe627e98424e1f59b1c",
     "gro-referral": "0x2F6579F6031E85b8862848b90118Bb12c0ea5a31",
     "aave-l2-account": "0x10898aadc80fce8ba76b4cbc392e17cb9c976738",
-    "aave-swapper": "0x3463375ad6e47F690BeB1F99F656Fe3EC37b2836"
+    "aave-swapper": "0xbd19947BDFa259CeE85270c1B992f47A98b4a943"
   }
 }
