@@ -56,13 +56,13 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
 
         if (_indexIn == 0) {
             transferFromZkSync(ETH_TOKEN);
-            amountOut = swapEthForStEth(_amountIn);
+            amountOut = swapEthForWstEth(_amountIn);
             require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(wStEth, amountOut);
             emit Swapped(ETH_TOKEN, _amountIn, wStEth, amountOut);
         } else {
             transferFromZkSync(wStEth);
-            amountOut = swapStEthForEth(_amountIn);
+            amountOut = swapWstEthForEth(_amountIn);
             require(amountOut >= _minAmountOut, "slippage");
             transferToZkSync(ETH_TOKEN, amountOut);
             emit Swapped(wStEth, _amountIn, ETH_TOKEN, amountOut);
@@ -74,13 +74,22 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * First withdraws ETH from the bridge if there is a pending balance.
     * @param _amountIn The amount of ETH to swap.
     */
-    function swapEthForStEth(uint256 _amountIn) internal returns (uint256) {
-        // swap Eth for stEth on the Lido contract
-        ILido(stEth).submit{value: _amountIn}(lidoReferral);
+    function swapEthForWstEth(uint256 _amountIn) internal returns (uint256) {
+        uint256 dy = ICurvePool(stEthPool).get_dy(0, 1, _amountIn);
+        uint256 stEthAmount;
+
+        // if stETH below parity on Curve get it there, otherwise stake on Lido contract
+        if (dy > _amountIn) {
+            stEthAmount = ICurvePool(stEthPool).exchange{value: _amountIn}(0, 1, _amountIn, 1);
+        } else {
+            ILido(stEth).submit{value: _amountIn}(lidoReferral);
+            stEthAmount = _amountIn;
+        }
+
         // approve the wStEth contract to take the stEth
-        IERC20(stEth).approve(wStEth, _amountIn);
+        IERC20(stEth).approve(wStEth, stEthAmount);
         // wrap to wStEth and return deposited amount
-        return IWstETH(wStEth).wrap(_amountIn);
+        return IWstETH(wStEth).wrap(stEthAmount);
     }
 
     /**
@@ -88,7 +97,7 @@ contract LidoBridgeSwapper is ZkSyncBridgeSwapper {
     * First withdraws wrapped stETH from the bridge if there is a pending balance.
     * @param _amountIn The amount of wrapped stETH to swap.
     */
-    function swapStEthForEth(uint256 _amountIn) internal returns (uint256) {
+    function swapWstEthForEth(uint256 _amountIn) internal returns (uint256) {
         // unwrap to stEth
         uint256 unwrapped = IWstETH(wStEth).unwrap(_amountIn);
         // approve pool

@@ -21,12 +21,18 @@ contract CurvePoolMock is ICurvePool {
     receive() external payable {}
 
     // exchanges stETH for ETH with a ration of 1:1
-    function exchange(int128 _i, int128 _j, uint256 _dx, uint256 _minDy) external override returns (uint256) {
-        require(_i == 1 && _j == 0, "invalid i,j parameters");
+    function exchange(int128 _i, int128 _j, uint256 _dx, uint256 _minDy) external payable override returns (uint256) {
         require(_dx > _minDy, "dy too low");
-        LidoMock(stETH).burn(msg.sender, _dx);
-        (bool success, ) = msg.sender.call{value: _dx}("");
-        require(success, "failed to send ETH");
+        if (_i == 1 && _j == 0) {
+            LidoMock(stETH).burn(msg.sender, _dx);
+            (bool success, ) = msg.sender.call{value: _dx}("");
+            require(success, "failed to send ETH");
+        } else if (_i == 0 && _j == 1) {
+            require(msg.value == _dx, "msg.value != dx");
+            LidoMock(stETH).mint(msg.sender, msg.value);
+        } else {
+            revert("invalid i,j parameters");
+        }
         return _dx;
     }
 
@@ -54,6 +60,10 @@ contract CurvePoolMock is ICurvePool {
     }
 
     function calc_token_amount(uint256[2] calldata /*_amounts*/, bool /*_isDeposit*/) external pure override returns (uint256) {
+        return 1 ether;
+    }
+
+    function get_dy(int128 /*_i*/, int128 /*_j*/, uint256 /*_dx*/) external pure override returns (uint256) {
         return 1 ether;
     }
 }
