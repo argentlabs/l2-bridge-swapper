@@ -6,6 +6,8 @@ const config = new ConfigLoader(hre.network.name).load();
 
 const maxFeePerGas = ethers.utils.parseUnits("110", "gwei"); // "base fee + priority fee" on blocknative
 const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "priority fee" on blocknative
+// const options = { maxFeePerGas, maxPriorityFeePerGas };
+const options = {};
 
 (async () => {
   try {
@@ -20,10 +22,10 @@ const maxPriorityFeePerGas = ethers.utils.parseUnits("1.5", "gwei"); // "priorit
     const amount = await ethers.provider.getBalance(swapper.address);
     console.log(`Swapper ETH balance is: ${ethers.utils.formatEther(amount)}`);
 
-    const estimation = await swapper.estimateGas.exchange(0, 1, amount, { maxFeePerGas, maxPriorityFeePerGas });
+    const estimation = await swapper.estimateGas.exchange(0, 1, amount, 1, options);
     console.log(`gas estimation ${estimation}`);
 
-    const tx = await swapper.exchange(0, 1, amount, { maxFeePerGas, maxPriorityFeePerGas });
+    const tx = await swapper.exchange(0, 1, amount, 1, options);
     console.log(`tx is ${tx.hash}`);
 
   } catch (error) {

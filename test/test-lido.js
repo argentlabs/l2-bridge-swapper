@@ -143,10 +143,5 @@ describe("Lido Bridge Swapper", function () {
     it("Should fail to change the owner to 0 address", async function () {
       await expect(zap.changeOwner(ethers.constants.AddressZero)).to.revertedWith("invalid input");
     });
-
-    it("Should change the slippage", async function () {
-      await expect(zap.changeSlippage(2e6)).to.emit(zap, "SlippageChanged");
-      expect(await zap.slippagePercent()).to.equal(2e6);
-    });
   });
 });

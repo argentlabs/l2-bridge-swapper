@@ -1,0 +1,26 @@
+{
+  "zkSync": "0x5c56FC5757259c52747AbB7608F8822e7cE51484",
+  "zkSyncTokenGovernance": "0x4985EB0d7EA1eB6F25eBF5162797AA8638EC6e7A",
+  "wstETH": "0x8EC97d8013748C3C2a220406E47AE5c07EcF97f7",
+  "curve-stETH-pool": "0xF66924e4c7a43d588Cf347aAb89E2a3981EF3A32",
+  "yearn-crvStETH-vault": "",
+  "yvDai": "",
+  "yvUsdc": "",
+  "yvWBtc": "",
+  "gro-controller": "",
+  "argent": {
+    "owner": "",
+    "lido-swapper": "0x7E6C6c4f8C63640363bf657e0C56E997996Bc373",
+    "lido-l2-account": "0x986d6baf1f50d6186cd4afa62b28ab8eea203d89",
+    "lido-referral": "",
+    "yearn-swapper": "",
+    "yearn-l2-account": "",
+    "boosted-eth-swapper": "",
+    "boosted-eth-l2-account": "",
+    "gro-dai-swapper": "",
+    "gro-dai-l2-account": "",
+    "gro-usdc-swapper": "",
+    "gro-usdc-l2-account": "",
+    "gro-referral": ""
+  }
+}
