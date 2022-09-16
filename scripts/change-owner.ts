@@ -9,10 +9,10 @@ const config = new ConfigLoader(hre.network.name).load();
   const balance = await ethers.provider.getBalance(signer.address);
   console.log(`Signer ETH balance is: ${ethers.utils.formatEther(balance)}`);
 
-  const swapper = await ethers.getContractAt("ZkSyncBridgeSwapper", config.argent["boosted-eth-swapper"]);
+  const swapper = await ethers.getContractAt("ZkSyncBridgeSwapper", config.argent["lido-swapper"]);
   console.log("swapper is", swapper.address);
 
-  const tx = await swapper.changeOwner("0xa4d8543a5e57e2f88e57df96f29436028941868c");
+  const tx = await swapper.changeOwner(config.argent.owner);
   console.log("tx", tx.hash);
 
   const receipt = await tx.wait();
