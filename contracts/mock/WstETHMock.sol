@@ -27,4 +27,14 @@ contract WstETHMock is IWstETH, ERC20 {
         IERC20(stETH).transfer(msg.sender, stETHAmount);
         return stETHAmount;
     }
+
+    function getWstETHByStETH(uint256 _stETHAmount) external pure returns (uint256) {
+        return _stETHAmount;
+    }
+
+    function getStETHByWstETH(uint256 _wstETHAmount) external pure returns (uint256) {
+        return _wstETHAmount;
+    }
+
+    uint256 public stEthPerToken = 1 ether;
 }
