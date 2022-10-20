@@ -63,7 +63,7 @@ contract CurvePoolMock is ICurvePool {
         return 1 ether;
     }
 
-    function get_dy(int128 /*_i*/, int128 /*_j*/, uint256 /*_dx*/) external pure override returns (uint256) {
-        return 1 ether;
+    function get_dy(int128 /*_i*/, int128 /*_j*/, uint256 _dx) external pure override returns (uint256) {
+        return _dx;
     }
 }

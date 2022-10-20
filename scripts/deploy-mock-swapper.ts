@@ -1,7 +1,8 @@
 import hre, { ethers } from "hardhat";
 const ConfigLoader = require("./utils/configurator-loader.js");
 
-const config = new ConfigLoader(hre.network.name).load();
+const configLoader = new ConfigLoader(hre.network.name);
+const config = configLoader.load();
 
 (async () => {
   console.log("using network", hre.network.name);
@@ -23,10 +24,12 @@ const config = new ConfigLoader(hre.network.name).load();
   const wstETH = await WstETH.deploy(lido.address);
   await wstETH.deployed();
   console.log("Mock WstETH is", wstETH.address);
+  config["wstETH"] = wstETH.address;
 
   const curvePool = await CurvePool.deploy(lido.address, ethers.constants.AddressZero);
   await curvePool.deployed();
   console.log("Mock CurvePool is", curvePool.address);
+  config["curve-stETH-pool" ] = curvePool.address;
 
   const swapper = await Swapper.deploy(
     config.zkSync,
@@ -37,4 +40,7 @@ const config = new ConfigLoader(hre.network.name).load();
   );
   await swapper.deployed();
   console.log("Swapper is", swapper.address);
+  config.argent["lido-swapper"] = swapper.address;
+
+  configLoader.save(config);
 })();
